@@ -3,10 +3,15 @@ Pseudo random number generator for all platforms.
 
 If you are looking for a true CSPRNG you should use [Tyche](https://github.com/xqhare/tyche).
 
-Fortuna is only available on x86_64, riscv64 and aarch64, but supports any OS.
+Fortuna is available on x86_64, riscv64 and aarch64 CPU architectures, and supports any OS.
+
+## Features
+
+- Performance
+    - If compiled with release options, Fortuna needs about 1 - 4 ms to generate an entire entropy pool
 
 ## Naming
-Fortuna is named after the ancient roman goddess of fortune. Her greek equivalent is Tyche and lends her name to my own CSPRNG.
+Fortuna is named after the ancient roman goddess of fortune. Her Greek equivalent is Tyche and lends her name to my own CSPRNG.
 
 ## How Fortuna generates random numbers
 Fortuna relies on the system it is executed on to provide entropy.
@@ -18,9 +23,11 @@ Other inputs will always return the same number, like CPU features or the amount
 
 Most, if not all variation is provided by the measured time spend building the pool, or parts of it.
 
-All inputs are combined into one entropy pool. This pool is then used to scramble the pool itself, and then the scrambled pool is used to generate random numbers.
+Some inputs are combined into one entropy pool. The others are also pooled together to form a second pool. The second pool is then used to scramble the entropy pool itself.
 
-The pool is finite in size, and will be refilled as needed.
+The entropy pool is finite in size, but should be around 100k bytes of entropy.
+
+The entropy pool will be refilled as needed.
 
 ## Entropy sources
 Fortuna uses the following entropy sources:
