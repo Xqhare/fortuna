@@ -1,5 +1,7 @@
 use std::{os::unix::fs::MetadataExt, time::{Instant, SystemTime}};
 
+mod entropy_pool;
+
 fn main() {
     let time_now = Instant::now();
 
@@ -192,7 +194,6 @@ fn main() {
                 }
                 tmp_comb2
         }
-        
     };
 
     let mut scrambled_pool: Vec<u8> = Vec::new();
