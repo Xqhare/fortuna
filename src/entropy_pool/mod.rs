@@ -1,6 +1,9 @@
 mod generator;
 mod cpu_features;
 
+#[cfg(test)]
+mod tests;
+
 use generator::generate_entropy_pool;
 
 /// `EntropyPool` is a struct that contains a pool of pseudo random bytes.
