@@ -492,8 +492,7 @@ impl Fortuna {
         /// }
         /// ```
         pub fn random_with_ceiling(&mut self, ceiling: usize) -> usize {
-            let min_usize = usize::MIN;
-            self.random_from_range(min_usize, ceiling)
+            self.random_from_range(usize::MIN, ceiling)
         }
 
         /// Computes a random number between `usize::MAX` and the `floor` argument.
@@ -519,8 +518,7 @@ impl Fortuna {
         /// }
         /// ```
         pub fn random_with_floor(&mut self, floor: usize) -> usize {
-            let max_usize = usize::MAX;
-            self.random_from_range(floor, max_usize)
+            self.random_from_range(floor, usize::MAX)
         }
     }
 
