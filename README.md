@@ -1,7 +1,7 @@
 # Fortuna
 Pseudo random number generator for all platforms.
 
-If you are looking for a true CSPRNG you should use [Tyche](https://github.com/xqhare/tyche).
+If you are looking for a true CSPRNG check out my project [Tyche](https://github.com/xqhare/tyche).
 
 Fortuna is available on x86_64, riscv64 and aarch64 CPU architectures, and supports any OS.
 
@@ -32,8 +32,7 @@ The entropy pool will be refilled as needed.
 ## Entropy sources
 Fortuna uses the following entropy sources:
 - System time
-- UNIX Epoch
-- File system properties
+- File system properties (if available)
     - Main disk device ID and inode number
     - Directory nest depth to root
     - Current working directory properties
