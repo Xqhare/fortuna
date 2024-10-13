@@ -1,9 +1,9 @@
 # Fortuna
-Pseudo random number generator for all platforms.
+Dependency-free, panic-proof pseudo random number generator for any OS on any hardware.
 
 If you are looking for a true CSPRNG check out my project [Tyche](https://github.com/xqhare/tyche).
 
-Fortuna is available on x86_64, riscv64 and aarch64 CPU architectures, and supports any OS.
+It is recommended to use Fortuna on x86_64, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
 
 ## Features
 
@@ -11,7 +11,7 @@ Fortuna is available on x86_64, riscv64 and aarch64 CPU architectures, and suppo
     - If compiled with release options, Fortuna needs about 1 - 4 ms to generate an entire entropy pool
 
 ## Naming
-Fortuna is named after the ancient roman goddess of fortune. Her Greek equivalent is Tyche and lends her name to my own CSPRNG.
+Fortuna is named after the ancient roman goddess of fortune. Her Greek equivalent is Tyche and lends her name to my own CSPRNG project.
 
 ## How Fortuna generates random numbers
 Fortuna relies on the system it is executed on to provide entropy.
