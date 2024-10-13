@@ -2,13 +2,14 @@ use std::{os::unix::fs::MetadataExt, time::{Instant, SystemTime}};
 
 use crate::entropy_pool::cpu_features::get_cpu_features;
 
-pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with_entropy: bool, custom_entropy: Vec<u8>) -> Vec<u8> {
+pub fn generate_entropy_pool() -> Vec<u8> {
     let time_now = Instant::now();
 
     // time
     let system_time = {
         // Hacky af, but works...
         let system_time_string = format!("{:?}", SystemTime::now());
+        // remove all non-ascii digits (0-9)
         let store = {
             let mut tmp: Vec<u8> = Vec::new();
             for c in system_time_string.chars() {
@@ -18,7 +19,7 @@ pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with
             }
             tmp
         };
-        // this inverts the Unix timestamp, putting the least changing bits last.
+        // this inverts the timestamp, putting the least changing bits last.
         let out = {
             let mut tmp: Vec<u8> = Vec::new();
             for t in store {
@@ -49,27 +50,58 @@ pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with
     let matrix_time_spend_in_nsec = matrix_time_dur.elapsed().as_nanos();
     let complete_system_time_in_nsec = time_now.elapsed().as_nanos();
     
-    // fs
-    // 1. used space on disk
-    // 2. size of root dir
-    let fs_start_time = Instant::now();
-    let curr_dir = std::env::current_dir().unwrap();
-    let dir_nest_depth = curr_dir.ancestors().count();
-    let root_dir = curr_dir.ancestors().nth(curr_dir.ancestors().count() - 1).unwrap();
-    let root_dir_size = root_dir.metadata().unwrap().size();
-    let root_dir_device = root_dir.metadata().unwrap().dev();
-    let root_dir_ino = root_dir.metadata().unwrap().ino();
-    let fs_time_spend_in_nsec = fs_start_time.elapsed().as_nanos();
-
     // CPU features
     // ARM / Aarch64
     let cpu_time_dur = Instant::now();
     let cpu_features = get_cpu_features();
     let cpu_time_spend_in_nsec = cpu_time_dur.elapsed().as_nanos();
 
+    let salt_time_dur = Instant::now();
+
+    // salt itself will never change on the same machine, if executed from the same path
+    let mut salt: Vec<u8> = Vec::new();
+
+    // fs part 1
+    let fs_start_time = Instant::now();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Ok(try_dir_nest_depth) = TryInto::<u8>::try_into(directory.ancestors().count()) {
+            salt.push(try_dir_nest_depth);
+        }
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
+                    salt.push(root_dir_size);
+                }
+            }
+        }
+    }
+    let fs_time_spend_in_nsec = fs_start_time.elapsed().as_nanos();
+    
+    for feature in cpu_features {
+        let tmp = feature.as_bytes();
+        salt.append(&mut tmp.to_vec());
+    }
+
+    // fs part 2
+    let fs_start_time2 = Instant::now();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
+                    salt.push(root_dir_device);
+                }
+                if let Ok(root_dir_ino) = TryInto::<u8>::try_into(metadata.ino()) {
+                    salt.push(root_dir_ino);
+                }
+            }
+        }
+    }
+
+    let fs_time_spend_in_nsec2 = fs_start_time2.elapsed().as_nanos();
+    let salt_time_spend_in_nsec = salt_time_dur.elapsed().as_nanos();
     let time_spend_in_nsec = time_now.elapsed().as_nanos();
 
-    let all_time_spend_vec = vec![system_time_dur, matrix_time_spend_in_nsec, complete_system_time_in_nsec, fs_time_spend_in_nsec, cpu_time_spend_in_nsec, time_spend_in_nsec];
+    let all_time_spend_vec = vec![system_time_dur, matrix_time_spend_in_nsec, complete_system_time_in_nsec, fs_time_spend_in_nsec, fs_time_spend_in_nsec2, salt_time_spend_in_nsec, cpu_time_spend_in_nsec, time_spend_in_nsec];
 
     let mut all_time_spend_matrix: Vec<u8> = Vec::new();
     for i in 0..all_time_spend_vec.len() {
@@ -80,36 +112,6 @@ pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with
     }
     all_time_spend_matrix.retain(|&x| x != 0);
     all_time_spend_matrix.retain(|&x| x != 255);
-
-    let mut salt: Vec<u8> = Vec::new();
-    let try_dir_nest_depth = TryInto::<u8>::try_into(dir_nest_depth);
-    if try_dir_nest_depth.is_ok() {
-        salt.push(try_dir_nest_depth.unwrap());
-    }
-    let try_root_dir_size = TryInto::<u8>::try_into(root_dir_size);
-    if try_root_dir_size.is_ok() {
-        salt.push(try_root_dir_size.unwrap());
-    }
-    if with_salt {
-        for (feature, custom_salt) in cpu_features.iter().zip(custom_salt.unwrap().iter()) {
-            let tmp = feature.as_bytes();
-            salt.append(&mut tmp.to_vec());
-            salt.push(*custom_salt);
-        }
-    } else {
-        for feature in cpu_features {
-            let tmp = feature.as_bytes();
-            salt.append(&mut tmp.to_vec());
-        }
-    }
-    let try_root_dir_device = TryInto::<u8>::try_into(root_dir_device);
-    if try_root_dir_device.is_ok() {
-        salt.push(try_root_dir_device.unwrap());
-    }
-    let try_root_dir_ino = TryInto::<u8>::try_into(root_dir_ino);
-    if try_root_dir_ino.is_ok() {
-        salt.push(try_root_dir_ino.unwrap());
-    }
 
     let salted_time_spend_matrix = {
         let tmp_zip = all_time_spend_matrix.iter().zip(salt.iter());
@@ -173,78 +175,34 @@ pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with
     }
 
     let all_matrix_combined = {
-        if with_entropy {
-            if salted_time_spend_matrix[all_matrix_matrix[0] as usize] % 2 == 0 {
-                let tmp_zip = all_matrix_matrix.iter().zip(all_matrix_divided.iter());
-                let mut tmp_comb = Vec::new();
-                for (a, b) in tmp_zip {
-                    tmp_comb.push(a);
-                    tmp_comb.push(b);
-                }
-                let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
-                let mut tmp_comb2 = Vec::new();
-                for (a, b) in tmp_zip2 {
-                    tmp_comb2.push(*a);
-                    tmp_comb2.push(b);
-                }
-                let tmp_zip3 = tmp_comb2.iter().zip(custom_entropy.iter());
-                let mut tmp_comb3 = Vec::new();
-                for (a, b) in tmp_zip3 {
-                    tmp_comb3.push(*a);
-                    tmp_comb3.push(b);
-                }
-                tmp_comb3
-            } else {
-                let tmp_zip = all_matrix_divided.iter().zip(all_matrix_matrix.iter());
-                let mut tmp_comb = Vec::new();
-                for (a, b) in tmp_zip {
-                    tmp_comb.push(a);
-                    tmp_comb.push(b);
-                }
-                let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
-                let mut tmp_comb2 = Vec::new();
-                for (a, b) in tmp_zip2 {
-                    tmp_comb2.push(*a);
-                    tmp_comb2.push(b);
-                }
-                let tmp_zip3 = tmp_comb2.iter().zip(custom_entropy.iter());
-                let mut tmp_comb3 = Vec::new();
-                for (a, b) in tmp_zip3 {
-                    tmp_comb3.push(*a);
-                    tmp_comb3.push(b);
-                }
-                tmp_comb3
+        if salted_time_spend_matrix[all_matrix_matrix[0] as usize % salted_time_spend_matrix.len()] % 2 == 0 {
+            let tmp_zip = all_matrix_matrix.iter().zip(all_matrix_divided.iter());
+            let mut tmp_comb = Vec::new();
+            for (a, b) in tmp_zip {
+                tmp_comb.push(a);
+                tmp_comb.push(b);
             }
+            let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
+            let mut tmp_comb2 = Vec::new();
+            for (a, b) in tmp_zip2 {
+                tmp_comb2.push(*a);
+                tmp_comb2.push(b);
+            }
+            tmp_comb2
         } else {
-            if salted_time_spend_matrix[all_matrix_matrix[0] as usize] % 2 == 0 {
-                let tmp_zip = all_matrix_matrix.iter().zip(all_matrix_divided.iter());
-                let mut tmp_comb = Vec::new();
-                for (a, b) in tmp_zip {
-                    tmp_comb.push(a);
-                    tmp_comb.push(b);
-                }
-                let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
-                let mut tmp_comb2 = Vec::new();
-                for (a, b) in tmp_zip2 {
-                    tmp_comb2.push(*a);
-                    tmp_comb2.push(b);
-                }
-                tmp_comb2
-            } else {
-                let tmp_zip = all_matrix_divided.iter().zip(all_matrix_matrix.iter());
-                let mut tmp_comb = Vec::new();
-                for (a, b) in tmp_zip {
-                    tmp_comb.push(a);
-                    tmp_comb.push(b);
-                }
-                let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
-                let mut tmp_comb2 = Vec::new();
-                for (a, b) in tmp_zip2 {
-                    tmp_comb2.push(*a);
-                    tmp_comb2.push(b);
-                }
-                tmp_comb2
+            let tmp_zip = all_matrix_divided.iter().zip(all_matrix_matrix.iter());
+            let mut tmp_comb = Vec::new();
+            for (a, b) in tmp_zip {
+                tmp_comb.push(a);
+                tmp_comb.push(b);
             }
+            let tmp_zip2 = tmp_comb.iter().zip(all_matrix_mul_with_extrema.iter());
+            let mut tmp_comb2 = Vec::new();
+            for (a, b) in tmp_zip2 {
+                tmp_comb2.push(*a);
+                tmp_comb2.push(b);
+            }
+            tmp_comb2
         }
     };
 
@@ -258,7 +216,14 @@ pub fn generate_entropy_pool(with_salt: bool, custom_salt: Option<Vec<u8>>, with
         if salted_index_counter == salted_len {
             salted_index_counter = 0;
         }
-        scrambled_pool.push(*all_matrix_combined[*salted_index as usize]);
+        let tmp_index = {
+            if *salted_index as usize >= all_matrix_combined.len() {
+                *salted_index as usize % all_matrix_combined.len()
+            } else {
+                *salted_index as usize
+            }
+        };
+        scrambled_pool.push(*all_matrix_combined[tmp_index]);
     }
     return scrambled_pool;
 }
