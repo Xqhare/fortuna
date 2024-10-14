@@ -1,6 +1,8 @@
 # Fortuna
 A dependency-free, deterministic, panic-proof PRNG for any OS on any hardware.
 
+Hobby project, probably not suitable for production use.
+
 If you are looking for a true CSPRNG check out my project [Tyche](https://github.com/xqhare/tyche).
 
 It is recommended to use Fortuna on x86_64, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
