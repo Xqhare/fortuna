@@ -7,13 +7,7 @@ mod tests {
     fn all_bytes_generated() {
         let mut pool = EntropyPool::new();
         let mut ok = false;
-        let mut check_vec = {
-            let mut out: Vec<u8> = Vec::new();
-            for n in 0..=255 {
-                out.push(n);
-            }
-            out
-        };
+        let mut check_vec = (0..=255).collect::<Vec<u8>>();
         while !ok {
             let byte = pool.get_random_byte();
             if check_vec.contains(&byte) {
