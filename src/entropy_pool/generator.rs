@@ -1,4 +1,7 @@
-use std::{os::unix::fs::MetadataExt, time::{Instant, SystemTime}};
+use std::{
+    os::unix::fs::MetadataExt,
+    time::{Instant, SystemTime},
+};
 
 use crate::entropy_pool::cpu_features::get_cpu_features;
 
@@ -49,7 +52,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
     }
     let matrix_time_spend_in_nsec = matrix_time_dur.elapsed().as_nanos();
     let complete_system_time_in_nsec = time_now.elapsed().as_nanos();
-    
+
     // CPU features
     // riscv / aarch64 / x86_64
     let cpu_time_dur = Instant::now();
@@ -76,11 +79,19 @@ pub fn generate_entropy_pool() -> Vec<u8> {
         }
     }
     let fs_time_spend_in_nsec = fs_start_time.elapsed().as_nanos();
-    
+
     if cpu_features.is_empty() {
         // if no CPU features detected, fallback to pre-generated salt
         // As CPU features do not change on the same machine anyway, this should be fine
-        let mut pre_generated = vec![195, 15, 51, 98, 244, 101, 246, 245, 194, 184, 82, 102, 170, 119, 58, 233, 92, 9, 91, 170, 15, 45, 220, 17, 34, 110, 241, 177, 33, 227, 14, 50, 197, 23, 198, 83, 218, 168, 34, 18, 49, 224, 42, 160, 178, 80, 218, 43, 27, 225, 50, 240, 65, 187, 133, 206, 17, 123, 135, 130, 153, 107, 185, 84, 156, 45, 232, 19, 192, 15, 198, 95, 147, 240, 150, 180, 210, 254, 149, 133, 99, 250, 111, 183, 211, 6, 135, 95, 120, 33, 154, 209, 42, 238, 28, 107, 130, 110, 164, 8, 212, 103, 28, 56, 240, 41, 166, 149, 142, 96, 254, 155, 214, 156, 51, 0, 105, 21, 171, 65, 177, 165, 234, 35, 230];
+        let mut pre_generated = vec![
+            195, 15, 51, 98, 244, 101, 246, 245, 194, 184, 82, 102, 170, 119, 58, 233, 92, 9, 91,
+            170, 15, 45, 220, 17, 34, 110, 241, 177, 33, 227, 14, 50, 197, 23, 198, 83, 218, 168,
+            34, 18, 49, 224, 42, 160, 178, 80, 218, 43, 27, 225, 50, 240, 65, 187, 133, 206, 17,
+            123, 135, 130, 153, 107, 185, 84, 156, 45, 232, 19, 192, 15, 198, 95, 147, 240, 150,
+            180, 210, 254, 149, 133, 99, 250, 111, 183, 211, 6, 135, 95, 120, 33, 154, 209, 42,
+            238, 28, 107, 130, 110, 164, 8, 212, 103, 28, 56, 240, 41, 166, 149, 142, 96, 254, 155,
+            214, 156, 51, 0, 105, 21, 171, 65, 177, 165, 234, 35, 230,
+        ];
         salt.append(&mut pre_generated);
     } else {
         for feature in cpu_features {
@@ -108,7 +119,16 @@ pub fn generate_entropy_pool() -> Vec<u8> {
     let salt_time_spend_in_nsec = salt_time_dur.elapsed().as_nanos();
     let time_spend_in_nsec = time_now.elapsed().as_nanos();
 
-    let all_time_spend_vec = vec![system_time_dur, matrix_time_spend_in_nsec, complete_system_time_in_nsec, fs_time_spend_in_nsec, fs_time_spend_in_nsec2, salt_time_spend_in_nsec, cpu_time_spend_in_nsec, time_spend_in_nsec];
+    let all_time_spend_vec = vec![
+        system_time_dur,
+        matrix_time_spend_in_nsec,
+        complete_system_time_in_nsec,
+        fs_time_spend_in_nsec,
+        fs_time_spend_in_nsec2,
+        salt_time_spend_in_nsec,
+        cpu_time_spend_in_nsec,
+        time_spend_in_nsec,
+    ];
 
     let mut all_time_spend_matrix: Vec<u8> = Vec::new();
     for i in 0..all_time_spend_vec.len() {
@@ -159,7 +179,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
             all_matrix_divided.append(&mut tmp_bind.to_le_bytes().to_vec());
         }
     }
-    
+
     let mut all_matrix_mul_with_extrema: Vec<u8> = Vec::new();
     for i in 0..all_time_spend_matrix.len() {
         for j in 0..sys_time_matrix.len() {
@@ -177,12 +197,14 @@ pub fn generate_entropy_pool() -> Vec<u8> {
                 let tmp_bind: u8 = all_time_spend_matrix[i].overflowing_div(tmp.into()).0;
                 all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
             }
-            
         }
     }
 
     let all_matrix_combined = {
-        if salted_time_spend_matrix[all_matrix_matrix[0] as usize % salted_time_spend_matrix.len()] % 2 == 0 {
+        if salted_time_spend_matrix[all_matrix_matrix[0] as usize % salted_time_spend_matrix.len()]
+            % 2
+            == 0
+        {
             let tmp_zip = all_matrix_matrix.iter().zip(all_matrix_divided.iter());
             let mut tmp_comb = Vec::new();
             for (a, b) in tmp_zip {
