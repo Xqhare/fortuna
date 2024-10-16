@@ -6,16 +6,7 @@ If you are looking for a true CSPRNG check out my project [Tyche](https://github
 
 It is recommended to use Fortuna on x86_64, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
 
-## Features
-
-- Performant
-- Deterministic
-- Panic-proof / no errors
-- No dependencies
-- Customizable memory footprint
-
-## Naming
-Fortuna is named after the ancient roman goddess of fortune. Her Greek equivalent is Tyche and lends her name to my own CSPRNG project.
+For more information, please refer to the README.md file in the repository.
 
 ## Usage
 First add `fortuna` to your `Cargo.toml`:
@@ -52,6 +43,8 @@ fn main() {
     let lowercase_char: char = fortuna.random_latin_char(false);
     let uppercase_char: char = fortuna.random_latin_char(true);
 
+    let ascii_char: char = fortuna.random_ascii_char();
+
     let random_bool: bool = fortuna.random_bool();
 
     let random_u_range: usize = fortuna.random_from_range(0, 100);
@@ -87,6 +80,8 @@ fn main() {
     println!("Generated random lowercase char: {}", lowercase_char);
     println!("Generated random uppercase char: {}", uppercase_char);
 
+    println!("Generated random ascii char: {}", ascii_char);
+
     println!("Generated random bool: {}", random_bool);
 
     println!("Generated random u range: {}", random_u_range);
@@ -107,25 +102,7 @@ fn main() {
 }
 ```
 
-## How Fortuna generates random numbers
-Fortuna relies on the system it is executed on to provide entropy.
-
-Fortuna is deterministic, so it will always return the same number for the same inputs. Because of this, some inputs have been chosen to never return the same number (e.g. System Time).
-This means that if the complete state of the system is known it is possible to predict the next number.
-
-Other inputs will always return the same number, like CPU features or the amount of files in the root directory.
-
-Most, if not all variation is provided by the measured time spend building the pool, or parts of it.
-
-Some inputs are combined into one entropy pool. The others are also pooled together to form a second pool. The second pool is then used to scramble the entropy pool itself.
-
-The entropy pool is finite in size, but should be around 100k bytes of entropy.
-
-The entropy pool will be refilled as needed.
-
-The largest sources of entropy are system time and code execution times.
-
-### Entropy sources
+## Entropy sources
 Fortuna uses the following entropy sources:
 - System time
 - File system properties (if available)
@@ -140,7 +117,6 @@ mod entropy_pool;
 
 use crate::entropy_pool::EntropyPool;
 use std::ops::{Add, Sub};
-
 
 /// `Fortuna` is a struct that contains a pool of pseudo-random bytes.
 /// The entropy pool will regenerate itself if it is empty.
@@ -174,6 +150,8 @@ use std::ops::{Add, Sub};
 ///
 ///   let lowercase_char: char = fortuna.random_latin_char(false);
 ///   let uppercase_char: char = fortuna.random_latin_char(true);
+///
+///   let ascii_char: char = fortuna.random_ascii_char();
 ///
 ///   let random_bool: bool = fortuna.random_bool();
 ///
@@ -210,6 +188,8 @@ use std::ops::{Add, Sub};
 ///   println!("Generated random lowercase char: {}", lowercase_char);
 ///   println!("Generated random uppercase char: {}", uppercase_char);
 ///
+///   println!("Generated random ascii char: {}", ascii_char);
+///
 ///   println!("Generated random bool: {}", random_bool);
 ///
 ///   println!("Generated random u range: {}", random_u_range);
@@ -234,7 +214,6 @@ pub struct Fortuna {
 }
 
 impl Fortuna {
-
     /// Creates a new `Fortuna` instance.
     ///
     /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
@@ -292,7 +271,7 @@ impl Fortuna {
         }
     }
 
-    /// Generates a pseudo-random `u8`. 
+    /// Generates a pseudo-random `u8`.
     ///
     /// ## Example:
     /// ```
@@ -321,11 +300,13 @@ impl Fortuna {
     /// }
     /// ```
     pub fn random_u16(&mut self) -> u16 {
-        let rng = [self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte()];
+        let rng = [
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+        ];
         u16::from_le_bytes(rng)
     }
 
-    
     /// Generates a pseudo-random `u32`
     ///
     /// ## Example:
@@ -339,7 +320,12 @@ impl Fortuna {
     /// }
     /// ```
     pub fn random_u32(&mut self) -> u32 {
-        let rng = [self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte()];
+        let rng = [
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+        ];
         u32::from_le_bytes(rng)
     }
 
@@ -366,7 +352,8 @@ impl Fortuna {
             self.entropy_pool.get_random_byte(),
             self.entropy_pool.get_random_byte(),
             self.entropy_pool.get_random_byte(),
-            self.entropy_pool.get_random_byte(),];
+            self.entropy_pool.get_random_byte(),
+        ];
         u64::from_le_bytes(rng)
     }
 
@@ -400,11 +387,14 @@ impl Fortuna {
     /// }
     /// ```
     pub fn random_i16(&mut self) -> i16 {
-        let rng = [self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte()];
+        let rng = [
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+        ];
         i16::from_le_bytes(rng)
     }
 
-    /// Generates a pseudo-random `i32` 
+    /// Generates a pseudo-random `i32`
     ///
     /// ## Example:
     /// ```
@@ -417,7 +407,12 @@ impl Fortuna {
     /// }
     /// ```
     pub fn random_i32(&mut self) -> i32 {
-        let rng = [self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte(), self.entropy_pool.get_random_byte()];
+        let rng = [
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+            self.entropy_pool.get_random_byte(),
+        ];
         i32::from_le_bytes(rng)
     }
 
@@ -442,7 +437,8 @@ impl Fortuna {
             self.entropy_pool.get_random_byte(),
             self.entropy_pool.get_random_byte(),
             self.entropy_pool.get_random_byte(),
-            self.entropy_pool.get_random_byte(),];
+            self.entropy_pool.get_random_byte(),
+        ];
         i64::from_le_bytes(rng)
     }
 
@@ -523,12 +519,39 @@ impl Fortuna {
     /// }
     /// ```
     pub fn random_latin_char(&mut self, uppercase: bool) -> char {
-        let chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+        let chars = [
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
+            'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        ];
         let chosen_char = chars[self.random_index(chars.len())];
         if uppercase {
             chosen_char.to_ascii_uppercase()
         } else {
             chosen_char
+        }
+    }
+
+    /// Generates a pseudo-random ASCII character.
+    ///
+    /// The allowed range of ASCII in HEX is 21 - FF with the exceptions 7F (DEL), 81 + 8D + 8F +
+    /// 90 + 9D (Unused), A0 (Non-breaking space) and AD (Soft hyphen)
+    ///
+    /// ## Example:
+    /// ```
+    /// use fortuna::Fortuna;
+    ///
+    /// fn main() {
+    ///   let mut fortuna = Fortuna::new();
+    ///   let random_char: char = fortuna.random_ascii_char();
+    ///   println!("Generated random char: {}", random_char);
+    /// }
+    /// ```
+    pub fn random_ascii_char(&mut self) -> char {
+        let ran_u8 = self.entropy_pool.get_random_byte();
+        if ran_u8 >= 33 && ran_u8 <= 126 || ran_u8 == 128 || ran_u8 >= 130 && ran_u8 <= 140 || ran_u8 == 142 || ran_u8 >= 145 && ran_u8 <= 156 || ran_u8 >= 158 && ran_u8 <= 159 || ran_u8 >= 161 && ran_u8 <= 172 || ran_u8 >= 174 {
+            return char::from_u32(ran_u8 as u32).expect("Valid ASCII character");
+        } else {
+            return self.random_ascii_char();
         }
     }
 
@@ -552,10 +575,10 @@ impl Fortuna {
             return true;
         }
     }
-    
+
     /// Call with the start and end of the range (both `usize`).
     /// The range is inclusive on both ends.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// use fortuna::Fortuna;
@@ -578,10 +601,10 @@ impl Fortuna {
             self.random_from_range(end, start)
         }
     }
-    
+
     /// Call with the start and end of the range (both `u32`).
     /// The range is inclusive on both ends.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// use fortuna::Fortuna;
@@ -607,7 +630,7 @@ impl Fortuna {
 
     /// Call with the start and end of the range (both `u64`).
     /// The range is inclusive on both ends.
-    /// 
+    ///
     /// This function needs a 64bit system for obvious reasons.
     ///
     /// ## Example:
@@ -635,7 +658,7 @@ impl Fortuna {
 
     /// Call with the start and end of the range (both `f32`).
     /// The range is inclusive on start, and never quite reaches end.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// use fortuna::Fortuna;
@@ -653,15 +676,15 @@ impl Fortuna {
             // As further reading did not help in the slightes but confirm that floating point
             // numbers are weird I will have to live with it. It seems to grow towards end, and
             // never reaching it. I now suspect maths shinanigans.
-            let range_size = end.sub(start);//.add(1.0);
+            let range_size = end.sub(start); //.add(1.0);
             let rng = self.random_f32();
-                if rng.is_sign_positive() {
-                    let random_index = rng % range_size;
-                    start.add(random_index)
-                } else {
-                    let random_index = (rng * -1.0) % range_size;
-                    start.add(random_index)
-                }
+            if rng.is_sign_positive() {
+                let random_index = rng % range_size;
+                start.add(random_index)
+            } else {
+                let random_index = (rng * -1.0) % range_size;
+                start.add(random_index)
+            }
         } else if start == end {
             start
         } else {
@@ -673,7 +696,7 @@ impl Fortuna {
     /// The range is inclusive on start, and never quite reaches end.
     ///
     /// This function needs a 64bit system for obvious reasons.
-    /// 
+    ///
     /// ## Example:
     /// ```
     /// use fortuna::Fortuna;
@@ -686,15 +709,15 @@ impl Fortuna {
     /// ```
     pub fn random_from_f64_range(&mut self, start: f64, end: f64) -> f64 {
         if start < end {
-            let range_size = end.sub(start);//.add(1.0);
+            let range_size = end.sub(start); //.add(1.0);
             let rng = self.random_f64();
-                if rng.is_sign_positive() {
-                    let random_index = rng % range_size;
-                    start.add(random_index)
-                } else {
-                    let random_index = (rng * -1.0) % range_size;
-                    start.add(random_index)
-                }
+            if rng.is_sign_positive() {
+                let random_index = rng % range_size;
+                start.add(random_index)
+            } else {
+                let random_index = (rng * -1.0) % range_size;
+                start.add(random_index)
+            }
         } else if start == end {
             start
         } else {
@@ -723,7 +746,7 @@ impl Fortuna {
                 let random_index = rng % range_size;
                 start.add(random_index)
             } else {
-                let random_index = -rng % range_size;
+                let random_index = rng.saturating_neg() % range_size;
                 start.add(random_index)
             }
         } else if start == end {
@@ -756,7 +779,7 @@ impl Fortuna {
                 let random_index = rng % range_size;
                 start.add(random_index)
             } else {
-                let random_index = -rng % range_size;
+                let random_index = rng.saturating_neg() % range_size;
                 start.add(random_index)
             }
         } else if start == end {
@@ -787,7 +810,7 @@ impl Fortuna {
                 let random_index = rng % range_size;
                 start.add(random_index)
             } else {
-                let random_index = -rng % range_size;
+                let random_index = rng.saturating_neg() % range_size;
                 start.add(random_index)
             }
         } else if start == end {
@@ -857,4 +880,3 @@ impl Fortuna {
         self.random_from_range(floor, usize::MAX)
     }
 }
-
