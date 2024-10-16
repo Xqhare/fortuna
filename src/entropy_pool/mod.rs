@@ -1,5 +1,5 @@
-mod generator;
 mod cpu_features;
+mod generator;
 
 #[cfg(test)]
 mod tests;
@@ -39,7 +39,7 @@ impl EntropyPool {
     }
 
     /// Creates a new `EntropyPool` with a restricted pool size.
-    pub fn create_size_restricted(initial_pool_size: usize)-> Self {
+    pub fn create_size_restricted(initial_pool_size: usize) -> Self {
         let pool = generate_restricted_pool(initial_pool_size);
         Self {
             initial_pool_size,
@@ -73,4 +73,3 @@ fn generate_restricted_pool(initial_pool_size: usize) -> Vec<u8> {
         large_pool[0..initial_pool_size].to_vec()
     }
 }
-
