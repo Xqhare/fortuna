@@ -285,157 +285,157 @@ pub fn get_cpu_features() -> Vec<&'static str> {
 /// Tests for x86 features
 pub fn get_cpu_features() -> Vec<&'static str> {
     let mut features = Vec::new();
-    if std::arch::is_x86_feature_detected!("aes"){
+    if std::arch::is_x86_feature_detected!("aes") {
         features.push("aes");
     }
-    if std::arch::is_x86_feature_detected!("pclmulqdq"){
+    if std::arch::is_x86_feature_detected!("pclmulqdq") {
         features.push("pclmulqdq");
     }
-    if std::arch::is_x86_feature_detected!("rdrand"){
+    if std::arch::is_x86_feature_detected!("rdrand") {
         features.push("rdrand");
     }
-    if std::arch::is_x86_feature_detected!("rdseed"){
+    if std::arch::is_x86_feature_detected!("rdseed") {
         features.push("rdseed");
     }
-    if std::arch::is_x86_feature_detected!("tsc"){
+    if std::arch::is_x86_feature_detected!("tsc") {
         features.push("tsc");
     }
-    if std::arch::is_x86_feature_detected!("mmx"){
+    if std::arch::is_x86_feature_detected!("mmx") {
         features.push("mmx");
     }
-    if std::arch::is_x86_feature_detected!("sse"){
+    if std::arch::is_x86_feature_detected!("sse") {
         features.push("sse");
     }
-    if std::arch::is_x86_feature_detected!("sse2"){
+    if std::arch::is_x86_feature_detected!("sse2") {
         features.push("sse2");
     }
-    if std::arch::is_x86_feature_detected!("sse3"){
+    if std::arch::is_x86_feature_detected!("sse3") {
         features.push("sse3");
     }
-    if std::arch::is_x86_feature_detected!("ssse3"){
+    if std::arch::is_x86_feature_detected!("ssse3") {
         features.push("ssse3");
     }
-    if std::arch::is_x86_feature_detected!("sse4.1"){
+    if std::arch::is_x86_feature_detected!("sse4.1") {
         features.push("sse4.1");
     }
-    if std::arch::is_x86_feature_detected!("sse4.2"){
+    if std::arch::is_x86_feature_detected!("sse4.2") {
         features.push("sse4.2");
     }
-    if std::arch::is_x86_feature_detected!("sse4a"){
+    if std::arch::is_x86_feature_detected!("sse4a") {
         features.push("sse4a");
     }
-    if std::arch::is_x86_feature_detected!("sha"){
+    if std::arch::is_x86_feature_detected!("sha") {
         features.push("sha");
     }
-    if std::arch::is_x86_feature_detected!("avx"){
+    if std::arch::is_x86_feature_detected!("avx") {
         features.push("avx");
     }
-    if std::arch::is_x86_feature_detected!("avx2"){
+    if std::arch::is_x86_feature_detected!("avx2") {
         features.push("avx2");
     }
-    if std::arch::is_x86_feature_detected!("avx512f"){
+    if std::arch::is_x86_feature_detected!("avx512f") {
         features.push("avx512f");
     }
-    if std::arch::is_x86_feature_detected!("avx512cd"){
+    if std::arch::is_x86_feature_detected!("avx512cd") {
         features.push("avx512cd");
     }
-    if std::arch::is_x86_feature_detected!("avx512er"){
+    if std::arch::is_x86_feature_detected!("avx512er") {
         features.push("avx512er");
     }
-    if std::arch::is_x86_feature_detected!("avx512pf"){
+    if std::arch::is_x86_feature_detected!("avx512pf") {
         features.push("avx512pf");
     }
-    if std::arch::is_x86_feature_detected!("avx512bw"){
+    if std::arch::is_x86_feature_detected!("avx512bw") {
         features.push("avx512bw");
     }
-    if std::arch::is_x86_feature_detected!("avx512dq"){
+    if std::arch::is_x86_feature_detected!("avx512dq") {
         features.push("avx512dq");
     }
-    if std::arch::is_x86_feature_detected!("avx512vl"){
+    if std::arch::is_x86_feature_detected!("avx512vl") {
         features.push("avx512vl");
     }
-    if std::arch::is_x86_feature_detected!("avx512ifma"){
+    if std::arch::is_x86_feature_detected!("avx512ifma") {
         features.push("avx512ifma");
     }
-    if std::arch::is_x86_feature_detected!("avx512vbmi"){
+    if std::arch::is_x86_feature_detected!("avx512vbmi") {
         features.push("avx512vbmi");
     }
-    if std::arch::is_x86_feature_detected!("avx512vpopcntdq"){
+    if std::arch::is_x86_feature_detected!("avx512vpopcntdq") {
         features.push("avx512vpopcntdq");
     }
-    if std::arch::is_x86_feature_detected!("avx512vbmi2"){
+    if std::arch::is_x86_feature_detected!("avx512vbmi2") {
         features.push("avx512vbmi2");
     }
-    if std::arch::is_x86_feature_detected!("gfni"){
+    if std::arch::is_x86_feature_detected!("gfni") {
         features.push("gfni");
     }
-    if std::arch::is_x86_feature_detected!("vaes"){
+    if std::arch::is_x86_feature_detected!("vaes") {
         features.push("vaes");
     }
-    if std::arch::is_x86_feature_detected!("vpclmulqdq"){
+    if std::arch::is_x86_feature_detected!("vpclmulqdq") {
         features.push("vpclmulqdq");
     }
-    if std::arch::is_x86_feature_detected!("avx512vnni"){
+    if std::arch::is_x86_feature_detected!("avx512vnni") {
         features.push("avx512vnni");
     }
-    if std::arch::is_x86_feature_detected!("avx512bitalg"){
+    if std::arch::is_x86_feature_detected!("avx512bitalg") {
         features.push("avx512bitalg");
     }
-    if std::arch::is_x86_feature_detected!("avx512bf16"){
+    if std::arch::is_x86_feature_detected!("avx512bf16") {
         features.push("avx512bf16");
     }
-    if std::arch::is_x86_feature_detected!("avx512vp2intersect"){
+    if std::arch::is_x86_feature_detected!("avx512vp2intersect") {
         features.push("avx512vp2intersect");
     }
-    if std::arch::is_x86_feature_detected!("avx512fp16"){
+    if std::arch::is_x86_feature_detected!("avx512fp16") {
         features.push("avx512fp16");
     }
-    if std::arch::is_x86_feature_detected!("f16c"){
+    if std::arch::is_x86_feature_detected!("f16c") {
         features.push("f16c");
     }
-    if std::arch::is_x86_feature_detected!("fma"){
+    if std::arch::is_x86_feature_detected!("fma") {
         features.push("fma");
     }
-    if std::arch::is_x86_feature_detected!("bmi1"){
+    if std::arch::is_x86_feature_detected!("bmi1") {
         features.push("bmi1");
     }
-    if std::arch::is_x86_feature_detected!("bmi2"){
+    if std::arch::is_x86_feature_detected!("bmi2") {
         features.push("bmi2");
     }
-    if std::arch::is_x86_feature_detected!("abm"){
+    if std::arch::is_x86_feature_detected!("abm") {
         features.push("abm");
     }
-    if std::arch::is_x86_feature_detected!("lzcnt"){
+    if std::arch::is_x86_feature_detected!("lzcnt") {
         features.push("lzcnt");
     }
-    if std::arch::is_x86_feature_detected!("movbe"){
+    if std::arch::is_x86_feature_detected!("movbe") {
         features.push("movbe");
     }
-    if std::arch::is_x86_feature_detected!("xsave"){
+    if std::arch::is_x86_feature_detected!("xsave") {
         features.push("xsave");
     }
-    if std::arch::is_x86_feature_detected!("xsaveopt"){
+    if std::arch::is_x86_feature_detected!("xsaveopt") {
         features.push("xsaveopt");
     }
-    if std::arch::is_x86_feature_detected!("xsavec"){
+    if std::arch::is_x86_feature_detected!("xsavec") {
         features.push("xsavec");
     }
-    if std::arch::is_x86_feature_detected!("xsaves"){
+    if std::arch::is_x86_feature_detected!("xsaves") {
         features.push("xsaves");
     }
-    if std::arch::is_x86_feature_detected!("cmpxchg16b"){
+    if std::arch::is_x86_feature_detected!("cmpxchg16b") {
         features.push("cmpxchg16b");
     }
-    if std::arch::is_x86_feature_detected!("adx"){
+    if std::arch::is_x86_feature_detected!("adx") {
         features.push("adx");
     }
-    if std::arch::is_x86_feature_detected!("rtm"){
+    if std::arch::is_x86_feature_detected!("rtm") {
         features.push("rtm");
     }
-    if std::arch::is_x86_feature_detected!("movbe"){
+    if std::arch::is_x86_feature_detected!("movbe") {
         features.push("movbe");
     }
-    if std::arch::is_x86_feature_detected!("ermsb"){
+    if std::arch::is_x86_feature_detected!("ermsb") {
         features.push("ermsb");
     }
     features
