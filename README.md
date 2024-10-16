@@ -53,6 +53,8 @@ fn main() {
     let lowercase_char: char = fortuna.random_latin_char(false);
     let uppercase_char: char = fortuna.random_latin_char(true);
 
+    let ascii_char: char = fortuna.random_ascii_char();
+
     let random_bool: bool = fortuna.random_bool();
 
     let random_u_range: usize = fortuna.random_from_range(0, 100);
@@ -88,6 +90,8 @@ fn main() {
     println!("Generated random lowercase char: {}", lowercase_char);
     println!("Generated random uppercase char: {}", uppercase_char);
 
+    println!("Generated random ascii char: {}", ascii_char);
+
     println!("Generated random bool: {}", random_bool);
 
     println!("Generated random u range: {}", random_u_range);
@@ -112,15 +116,15 @@ fn main() {
 Fortuna relies on the system it is executed on to provide entropy.
 
 Fortuna is deterministic, so it will always return the same number for the same inputs. Because of this, some inputs have been chosen to never return the same number (e.g. System Time).
-This means that if the complete state of the system is known it is possible to predict the next number.
+This still means that if the complete state of the system is known it is possible to predict the next number.
 
-Other inputs will always return the same number, like CPU features or the amount of files in the root directory.
+Other inputs will always return the same entropy, like CPU features or the amount of files in the root directory.
 
 Most, if not all variation is provided by the measured time spend building the pool, or parts of it.
 
-Some inputs are combined into one entropy pool. The others are also pooled together to form a second pool. The second pool is then used to scramble the entropy pool itself.
+Inputs with more variation are combined into one entropy pool. The others are also pooled together to form a second pool. The second pool is then used to scramble the entropy pool itself.
 
-The entropy pool is finite in size, but should be around 100k bytes of entropy.
+The entropy pool is finite in size, but should be around 100k bytes of entropy ready to go.
 
 The entropy pool will be refilled as needed.
 
