@@ -240,8 +240,8 @@ pub fn generate_entropy_pool() -> Vec<u8> {
     return scrambled_pool;
 }
 
-#[cfg(target_os = "linux")]
-/// Linux only
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+/// Linux or mac
 fn fs_part_1() -> Vec<u8> {
     let mut salt: Vec<u8> = Vec::new();
     if let Ok(directory) = std::env::current_dir() {
@@ -275,8 +275,8 @@ fn fs_part_1() -> Vec<u8> {
     salt
 }
 
-#[cfg(target_os = "linux")]
-/// linux only
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+/// Linux or mac
 fn fs_part_2() -> Vec<u8> {
 
     let mut salt: Vec<u8> = Vec::new();
