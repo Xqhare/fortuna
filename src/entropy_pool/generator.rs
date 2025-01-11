@@ -1,7 +1,12 @@
-use std::{
-    os::unix::fs::MetadataExt,
-    time::{Instant, SystemTime},
-};
+use std::time::{Instant, SystemTime};
+
+// linux spec use:
+#[cfg(target_os = "linux")]
+use std::os::unix::fs::MetadataExt;
+
+// Windows spec use
+#[cfg(target_os = "windows")]
+use std::os::windows::fs::MetadataExt;
 
 use crate::entropy_pool::cpu_features::get_cpu_features;
 
@@ -66,18 +71,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
 
     // fs part 1
     let fs_start_time = Instant::now();
-    if let Ok(directory) = std::env::current_dir() {
-        if let Ok(try_dir_nest_depth) = TryInto::<u8>::try_into(directory.ancestors().count()) {
-            salt.push(try_dir_nest_depth);
-        }
-        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
-            if let Ok(metadata) = root_dir.metadata() {
-                if let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
-                    salt.push(root_dir_size);
-                }
-            }
-        }
-    }
+    salt.append(&mut fs_part_1());
     let fs_time_spend_in_nsec = fs_start_time.elapsed().as_nanos();
 
     if cpu_features.is_empty() {
@@ -102,20 +96,9 @@ pub fn generate_entropy_pool() -> Vec<u8> {
 
     // fs part 2
     let fs_start_time2 = Instant::now();
-    if let Ok(directory) = std::env::current_dir() {
-        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
-            if let Ok(metadata) = root_dir.metadata() {
-                if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
-                    salt.push(root_dir_device);
-                }
-                if let Ok(root_dir_ino) = TryInto::<u8>::try_into(metadata.ino()) {
-                    salt.push(root_dir_ino);
-                }
-            }
-        }
-    }
-
+    salt.append(&mut fs_part_2());
     let fs_time_spend_in_nsec2 = fs_start_time2.elapsed().as_nanos();
+
     let salt_time_spend_in_nsec = salt_time_dur.elapsed().as_nanos();
     let time_spend_in_nsec = time_now.elapsed().as_nanos();
 
@@ -255,4 +238,79 @@ pub fn generate_entropy_pool() -> Vec<u8> {
         scrambled_pool.push(*all_matrix_combined[tmp_index]);
     }
     return scrambled_pool;
+}
+
+#[cfg(target_os = "linux")]
+/// Linux only
+fn fs_part_1() -> Vec<u8> {
+    let mut salt: Vec<u8> = Vec::new();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Ok(try_dir_nest_depth) = TryInto::<u8>::try_into(directory.ancestors().count()) {
+            salt.push(try_dir_nest_depth);
+        }
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
+                    salt.push(root_dir_size);
+                }
+            }
+        }
+    }
+    salt
+}
+
+#[cfg(target_os = "windows")]
+/// Windows only
+fn fs_part_1() -> Vec<u8> {
+    let mut salt: Vec<u8> = Vec::new();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.file_size()) {
+                    salt.push(root_dir_size);
+                }
+            }
+        }
+    }
+    salt
+}
+
+#[cfg(target_os = "linux")]
+/// linux only
+fn fs_part_2() -> Vec<u8> {
+
+    let mut salt: Vec<u8> = Vec::new();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
+                    salt.push(root_dir_device);
+                }
+                if let Ok(root_dir_ino) = TryInto::<u8>::try_into(metadata.ino()) {
+                    salt.push(root_dir_ino);
+                }
+            }
+        }
+    }
+    salt
+}
+
+#[cfg(target_os = "windows")]
+/// windows only
+fn fs_part_2() -> Vec<u8> {
+
+    let mut salt: Vec<u8> = Vec::new();
+    if let Ok(directory) = std::env::current_dir() {
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
+            if let Ok(metadata) = root_dir.metadata() {
+                if let Ok(volume_serial_number) = TryInto::<u8>::try_into(metadata.volume_serial_number()) {
+                    salt.push(volume_serial_number);
+                }
+                if let Ok(root_link_num) = TryInto::<u8>::try_into(metadata.number_of_links()) {
+                    salt.push(root_link_num);
+                }
+            }
+        }
+    }
+    salt
 }
