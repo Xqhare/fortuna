@@ -303,11 +303,11 @@ fn fs_part_2() -> Vec<u8> {
     if let Ok(directory) = std::env::current_dir() {
         if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
             if let Ok(metadata) = root_dir.metadata() {
-                if let Ok(volume_serial_number) = TryInto::<u8>::try_into(metadata.volume_serial_number()) {
-                    salt.push(volume_serial_number);
+                if let Ok(root_last_access) = TryInto::<u8>::try_into(metadata.last_access_time()) {
+                    salt.push(root_last_access);
                 }
-                if let Ok(root_link_num) = TryInto::<u8>::try_into(metadata.number_of_links()) {
-                    salt.push(root_link_num);
+                if let Ok(root_last_write) = TryInto::<u8>::try_into(metadata.last_write_time()) {
+                    salt.push(root_last_write);
                 }
             }
         }
