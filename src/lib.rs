@@ -271,6 +271,67 @@ impl Fortuna {
         }
     }
 
+    /// Creates a new `Fortuna` instance with a seeded entropy pool.
+    /// This is useful if you want to generate the same random values every time.
+    /// The seed should be chosen randomly, and kept secret.
+    /// The pool will regenerate itself if it is empty.
+    ///
+    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
+    /// sure to use as few instances as possible.
+    /// The pool will regenerate itself if it is empty.
+    ///
+    /// ## Parameters:
+    /// - `seed`: The seed to use for the entropy pool.
+    ///
+    /// ## Example
+    /// ```
+    /// use fortuna::Fortuna;
+    ///
+    /// fn main() {
+    ///   let mut fortuna = Fortuna::create_seeded(vec![1, 2, 3, 4]);
+    ///   let random_number: u8 = fortuna.random_u8();
+    ///   let random_bool: bool = fortuna.random_bool();
+    ///   println!("Generated random u8: {}", random_number);
+    ///   println!("Generated random bool: {}", random_bool);
+    /// }
+    /// ```
+    pub fn create_seeded(seed: Vec<u8>) -> Self {
+        Self {
+            entropy_pool: EntropyPool::create_seeded(seed),
+        }
+    }
+
+    /// Creates a new `Fortuna` instance with a seeded and size restricted entropy pool.
+    /// This is useful if you want to generate the same random values every time.
+    /// The seed should be chosen randomly, and kept secret.
+    /// The pool will regenerate itself if it is empty.
+    ///
+    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
+    /// sure to use as few instances as possible.
+    /// The pool will regenerate itself if it is empty.
+    ///
+    /// ## Parameters:
+    /// - `seed`: The seed to use for the entropy pool.
+    /// - `initial_pool_size`: The initial size of the pool.
+    ///
+    /// ## Example
+    /// ```
+    /// use fortuna::Fortuna;
+    ///
+    /// fn main() {
+    ///   let mut fortuna = Fortuna::create_seeded_size_restricted(vec![1, 2, 3, 4], 1_000);
+    ///   let random_number: u8 = fortuna.random_u8();
+    ///   let random_bool: bool = fortuna.random_bool();
+    ///   println!("Generated random u8: {}", random_number);
+    ///   println!("Generated random bool: {}", random_bool);
+    /// }
+    /// ```
+    pub fn create_seeded_size_restricted(seed: Vec<u8>, initial_pool_size: usize) -> Self {
+        Self {
+            entropy_pool: EntropyPool::create_seeded_size_restricted(initial_pool_size, seed),
+        }
+    }
+
     /// Generates a pseudo-random `u8`.
     ///
     /// ## Example:
@@ -548,9 +609,25 @@ impl Fortuna {
     /// ```
     pub fn random_ascii_char(&mut self) -> char {
         let ran_u8 = self.entropy_pool.get_random_byte();
-        if ran_u8 >= 33 && ran_u8 <= 126 || ran_u8 == 128 || ran_u8 >= 130 && ran_u8 <= 140 || ran_u8 == 142 || ran_u8 >= 145 && ran_u8 <= 156 || ran_u8 >= 158 && ran_u8 <= 159 || ran_u8 >= 161 && ran_u8 <= 172 || ran_u8 >= 174 {
+        if is_valid_ascii(ran_u8) {
             return char::from_u32(ran_u8 as u32).expect("Valid ASCII character");
         } else {
+            let try1 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
+            if is_valid_ascii(try1) {
+                return char::from_u32(try1 as u32).expect("Valid ASCII character");
+            }
+            let try2 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
+            if is_valid_ascii(try2) {
+                return char::from_u32(try2 as u32).expect("Valid ASCII character");
+            }
+            let try3 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
+            if is_valid_ascii(try3) {
+                return char::from_u32(try3 as u32).expect("Valid ASCII character");
+            }
+            let try4 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
+            if is_valid_ascii(try4) {
+                return char::from_u32(try4 as u32).expect("Valid ASCII character");
+            }
             return self.random_ascii_char();
         }
     }
@@ -878,5 +955,13 @@ impl Fortuna {
     /// ```
     pub fn random_with_floor(&mut self, floor: usize) -> usize {
         self.random_from_range(floor, usize::MAX)
+    }
+}
+
+fn is_valid_ascii(input: u8) -> bool {
+    if input >= 33 && input <= 126 || input == 128 || input >= 130 && input <= 140 || input == 142 || input >= 145 && input <= 156 || input >= 158 && input <= 159 || input >= 161 && input <= 172 || input >= 174 {
+        return true;
+    } else {
+        return false;
     }
 }
