@@ -10,6 +10,106 @@ use std::os::windows::fs::MetadataExt;
 
 use crate::entropy_pool::cpu_features::get_cpu_features;
 
+pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
+    let mut iteration_seed: Vec<u8> = Vec::new();
+    if seed.len() <= 50 {
+        // probably always a bit too large, should still save on heap allocations though
+        iteration_seed.reserve(seed.len() * 3);
+        for s in seed {
+            iteration_seed.push(*s);
+            if *s != 0 {
+                if iterations % 9 != 0 {
+                    for n in 0..=iterations % 9 {
+                        let s1: u16 = (*s as u16 >> n) as u16;
+                        let s2: u16 = ((*s as u16) << n) as u16;
+                        iteration_seed.extend_from_slice(&s1.to_le_bytes());
+                        iteration_seed.extend_from_slice(&s2.to_le_bytes());
+                    }
+                }
+            }
+        }
+    } else {
+        iteration_seed = seed.clone();
+    }
+    
+    let mut reversed_seed = iteration_seed.clone();
+    reversed_seed.reverse();
+
+    // Combining seeds
+
+    let combined_pool: Vec<u8> = {
+        let mut all_matrix_matrix: Vec<u8> = Vec::new();
+        for i in 0..iteration_seed.len() {
+            for j in 0..reversed_seed.len() {
+                let tmp = {
+                    if reversed_seed[j] == 0 {
+                        2
+                    } else {
+                        reversed_seed[j]
+                    }
+                };
+                let tmp_bind = iteration_seed[i].overflowing_mul(tmp.into()).0;
+                all_matrix_matrix.append(&mut tmp_bind.to_le_bytes().to_vec());
+            }
+        }
+
+        let mut all_matrix_divided: Vec<u8> = Vec::new();
+        for i in 0..iteration_seed.len() {
+            for j in 0..reversed_seed.len() {
+                let tmp = {
+                    if reversed_seed[j] == 0 {
+                        2
+                    } else {
+                        reversed_seed[j]
+                    }
+                };
+                let tmp_bind = iteration_seed[i].overflowing_div(tmp.into()).0;
+                all_matrix_divided.append(&mut tmp_bind.to_le_bytes().to_vec());
+            }
+        }
+
+        let mut all_matrix_mul_with_extrema: Vec<u8> = Vec::new();
+        for i in 0..iteration_seed.len() {
+            for j in 0..reversed_seed.len() {
+                let tmp = {
+                    if reversed_seed[j] == 0 {
+                        2
+                    } else {
+                        reversed_seed[j]
+                    }
+                };
+                if j % 2 == 0 && i % 3 == 0 {
+                    let tmp_bind: u8 = iteration_seed[i].overflowing_mul(tmp.into()).0;
+                    all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
+                } else {
+                    let tmp_bind: u8 = iteration_seed[i].overflowing_div(tmp.into()).0;
+                    all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
+                }
+            }
+        }
+
+        let tmp_zip = all_matrix_matrix.iter().zip(all_matrix_divided.iter());
+        let mut tmp = Vec::new();
+        for (i, j) in tmp_zip {
+            tmp.push(*i);
+            tmp.push(*j);
+        }
+        let tmp_zip2 = tmp.iter().zip(all_matrix_mul_with_extrema.iter());
+        let mut tmp2 = Vec::new();
+        for (i, j) in tmp_zip2 {
+            tmp2.push(*i);
+            tmp2.push(*j);
+        }
+        tmp2
+    };
+
+    let mut scrambled_pool: Vec<u8> = Vec::new();
+    for i in 0..combined_pool.len() {
+        scrambled_pool.push(combined_pool[(combined_pool[i] as usize) % combined_pool.len()]);
+    }
+    scrambled_pool
+}
+
 pub fn generate_entropy_pool() -> Vec<u8> {
     let time_now = Instant::now();
 
@@ -120,8 +220,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
             all_time_spend_matrix.append(&mut tmp_bind.to_le_bytes().to_vec());
         }
     }
-    all_time_spend_matrix.retain(|&x| x != 0);
-    all_time_spend_matrix.retain(|&x| x != 255);
+    all_time_spend_matrix.retain(|&x| x != 0 && x != 255);
 
     let salted_time_spend_matrix = {
         let tmp_zip = all_time_spend_matrix.iter().zip(salt.iter());
