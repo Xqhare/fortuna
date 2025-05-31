@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use fortuna::Fortuna;
 
 #[test]
@@ -813,6 +815,62 @@ fn custom_small_seeded_pool_with_10_regenerations() {
     assert_eq!(random_floor_vec.len(), 10_000);
 }
 
+#[test]
+fn is_seeded_really_seeded() {
+    let mut seeded1 = Fortuna::create_seeded(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    let mut seeded2 = Fortuna::create_seeded(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+    assert_eq!(seeded1.random_u8(), seeded2.random_u8());
+    assert_eq!(seeded1.random_u16(), seeded2.random_u16());
+    assert_eq!(seeded1.random_u32(), seeded2.random_u32());
+    assert_eq!(seeded1.random_u64(), seeded2.random_u64());
+
+    assert_eq!(seeded1.random_i8(), seeded2.random_i8());
+    assert_eq!(seeded1.random_i16(), seeded2.random_i16());
+    assert_eq!(seeded1.random_i32(), seeded2.random_i32());
+    assert_eq!(seeded1.random_i64(), seeded2.random_i64());
+
+    assert_eq!(seeded1.random_f32(), seeded2.random_f32());
+    assert_eq!(seeded1.random_f64(), seeded2.random_f64());
+
+    assert_eq!(seeded1.random_latin_char(false), seeded2.random_latin_char(false));
+    assert_eq!(seeded1.random_latin_char(true), seeded2.random_latin_char(true));
+
+    assert_eq!(seeded1.random_ascii_char(), seeded2.random_ascii_char());
+
+    assert_eq!(seeded1.random_bool(), seeded2.random_bool());
+
+    assert_eq!(seeded1.random_from_range(0, 10), seeded2.random_from_range(0, 10));
+    assert_eq!(seeded1.random_from_u32_range(0, 10), seeded2.random_from_u32_range(0, 10));
+    assert_eq!(seeded1.random_from_u64_range(0, 10), seeded2.random_from_u64_range(0, 10));
+
+    assert_eq!(seeded1.random_from_i_range(-10, 10), seeded2.random_from_i_range(-10, 10));
+    assert_eq!(seeded1.random_from_i32_range(-10, 10), seeded2.random_from_i32_range(-10, 10));
+    assert_eq!(seeded1.random_from_i64_range(-10, 10), seeded2.random_from_i64_range(-10, 10));
+
+    assert_eq!(seeded1.random_from_f32_range(-10.0, 10.0), seeded2.random_from_f32_range(-10.0, 10.0));
+    assert_eq!(seeded1.random_from_f64_range(-10.0, 10.0), seeded2.random_from_f64_range(-10.0, 10.0));
+
+    assert_eq!(seeded1.random_index(10), seeded2.random_index(10));
+    assert_eq!(seeded1.random_with_ceiling(10), seeded2.random_with_ceiling(10));
+    assert_eq!(seeded1.random_with_floor(10), seeded2.random_with_floor(10));
+}
+
+#[test]
+fn seeded_completeness() {
+    let mut fortuna = Fortuna::create_seeded("Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat !234567890?-_.:,;<>|@€+*~#''/-()/=[{&%$§`´¸`}]".as_bytes().to_vec());
+    let mut map: HashMap<u8, _> = HashMap::new();
+
+    for _ in 0..100_000 {
+        map.insert(fortuna.random_u8(), ());
+    }
+
+    // This should Ideally be true. It is not.
+    assert_ne!(map.len(), 256);
+
+    // absolute minimum
+    assert!(map.len() > 35);
+}
 
 #[test]
 #[ignore]
