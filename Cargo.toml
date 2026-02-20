@@ -2,5 +2,6 @@
 name = "fortuna"
 version = "0.4.5"
 edition = "2021"
+rust-version = "1.93.0"
 
 [dependencies]
