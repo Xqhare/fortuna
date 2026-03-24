@@ -234,7 +234,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         Self {
             entropy_pool: EntropyPool::new(),
@@ -266,7 +266,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```    
-    #[must_use] 
+    #[must_use]
     pub fn create_size_restricted(initial_pool_size: usize) -> Self {
         Self {
             entropy_pool: EntropyPool::create_size_restricted(initial_pool_size),
@@ -297,7 +297,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn create_seeded(seed: Vec<u8>) -> Self {
         Self {
             entropy_pool: EntropyPool::create_seeded(seed),
@@ -329,7 +329,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn create_seeded_size_restricted(seed: Vec<u8>, initial_pool_size: usize) -> Self {
         Self {
             entropy_pool: EntropyPool::create_seeded_size_restricted(initial_pool_size, seed),
@@ -957,5 +957,6 @@ fn is_valid_ascii(input: u8) -> bool {
         || input == 142
         || (145..=156).contains(&input)
         || (158..=159).contains(&input)
-        || (161..=172).contains(&input) || input >= 174
+        || (161..=172).contains(&input)
+        || input >= 174
 }

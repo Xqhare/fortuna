@@ -17,15 +17,14 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
         iteration_seed.reserve(seed.len() * 3);
         for s in seed {
             iteration_seed.push(*s);
-            if *s != 0
-                && !iterations.is_multiple_of(9) {
-                    for n in 0..=iterations % 9 {
-                        let s1: u16 = (u16::from(*s) >> n);
-                        let s2: u16 = (u16::from(*s) << n);
-                        iteration_seed.extend_from_slice(&s1.to_le_bytes());
-                        iteration_seed.extend_from_slice(&s2.to_le_bytes());
-                    }
+            if *s != 0 && !iterations.is_multiple_of(9) {
+                for n in 0..=iterations % 9 {
+                    let s1: u16 = (u16::from(*s) >> n);
+                    let s2: u16 = (u16::from(*s) << n);
+                    iteration_seed.extend_from_slice(&s1.to_le_bytes());
+                    iteration_seed.extend_from_slice(&s2.to_le_bytes());
                 }
+            }
         }
     } else {
         iteration_seed = seed.clone();
@@ -127,7 +126,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
             tmp
         };
         // this inverts the timestamp, putting the least changing bits last.
-        
+
         {
             let mut tmp: Vec<u8> = Vec::new();
             for t in store {
@@ -201,14 +200,16 @@ pub fn generate_entropy_pool() -> Vec<u8> {
     let salt_time_spend_in_nsec = salt_time_dur.elapsed().as_nanos();
     let time_spend_in_nsec = time_now.elapsed().as_nanos();
 
-    let all_time_spend_vec = [system_time_dur,
+    let all_time_spend_vec = [
+        system_time_dur,
         matrix_time_spend_in_nsec,
         complete_system_time_in_nsec,
         fs_time_spend_in_nsec,
         fs_time_spend_in_nsec2,
         salt_time_spend_in_nsec,
         cpu_time_spend_in_nsec,
-        time_spend_in_nsec];
+        time_spend_in_nsec,
+    ];
 
     let mut all_time_spend_matrix: Vec<u8> = Vec::new();
     for i in 0..all_time_spend_vec.len() {
@@ -346,9 +347,10 @@ fn fs_part_1() -> Vec<u8> {
         }
         if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1)
             && let Ok(metadata) = root_dir.metadata()
-                && let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
-                    salt.push(root_dir_size);
-                }
+            && let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size())
+        {
+            salt.push(root_dir_size);
+        }
     }
     salt
 }
@@ -375,14 +377,15 @@ fn fs_part_2() -> Vec<u8> {
     let mut salt: Vec<u8> = Vec::new();
     if let Ok(directory) = std::env::current_dir()
         && let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1)
-            && let Ok(metadata) = root_dir.metadata() {
-                if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
-                    salt.push(root_dir_device);
-                }
-                if let Ok(root_dir_ino) = TryInto::<u8>::try_into(metadata.ino()) {
-                    salt.push(root_dir_ino);
-                }
-            }
+        && let Ok(metadata) = root_dir.metadata()
+    {
+        if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
+            salt.push(root_dir_device);
+        }
+        if let Ok(root_dir_ino) = TryInto::<u8>::try_into(metadata.ino()) {
+            salt.push(root_dir_ino);
+        }
+    }
     salt
 }
 
