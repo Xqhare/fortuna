@@ -4,7 +4,7 @@ A dependency-free, deterministic, panic-proof PRNG for any OS on any hardware.
 
 If you are looking for a true CSPRNG check out my project [Tyche](https://github.com/xqhare/tyche).
 
-It is recommended to use Fortuna on x86_64, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
+It is recommended to use Fortuna on `x86_64`, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
 
 For more information, please refer to the README.md file in the repository.
 
@@ -234,6 +234,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
+    #[must_use] 
     pub fn new() -> Self {
         Self {
             entropy_pool: EntropyPool::new(),
@@ -265,6 +266,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```    
+    #[must_use] 
     pub fn create_size_restricted(initial_pool_size: usize) -> Self {
         Self {
             entropy_pool: EntropyPool::create_size_restricted(initial_pool_size),
@@ -295,6 +297,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
+    #[must_use] 
     pub fn create_seeded(seed: Vec<u8>) -> Self {
         Self {
             entropy_pool: EntropyPool::create_seeded(seed),
@@ -326,6 +329,7 @@ impl Fortuna {
     ///   println!("Generated random bool: {}", random_bool);
     /// }
     /// ```
+    #[must_use] 
     pub fn create_seeded_size_restricted(seed: Vec<u8>, initial_pool_size: usize) -> Self {
         Self {
             entropy_pool: EntropyPool::create_seeded_size_restricted(initial_pool_size, seed),
@@ -602,25 +606,25 @@ impl Fortuna {
     pub fn random_ascii_char(&mut self) -> char {
         let ran_u8 = self.entropy_pool.get_random_byte();
         if is_valid_ascii(ran_u8) {
-            return char::from_u32(ran_u8 as u32).expect("Valid ASCII character");
+            char::from_u32(u32::from(ran_u8)).expect("Valid ASCII character")
         } else {
             let try1 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
             if is_valid_ascii(try1) {
-                return char::from_u32(try1 as u32).expect("Valid ASCII character");
+                return char::from_u32(u32::from(try1)).expect("Valid ASCII character");
             }
             let try2 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
             if is_valid_ascii(try2) {
-                return char::from_u32(try2 as u32).expect("Valid ASCII character");
+                return char::from_u32(u32::from(try2)).expect("Valid ASCII character");
             }
             let try3 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
             if is_valid_ascii(try3) {
-                return char::from_u32(try3 as u32).expect("Valid ASCII character");
+                return char::from_u32(u32::from(try3)).expect("Valid ASCII character");
             }
             let try4 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
             if is_valid_ascii(try4) {
-                return char::from_u32(try4 as u32).expect("Valid ASCII character");
+                return char::from_u32(u32::from(try4)).expect("Valid ASCII character");
             }
-            return self.random_ascii_char();
+            self.random_ascii_char()
         }
     }
 
@@ -638,11 +642,7 @@ impl Fortuna {
     /// ```
     pub fn random_bool(&mut self) -> bool {
         let rng = self.entropy_pool.get_random_byte();
-        if rng % 2 == 0 {
-            return false;
-        } else {
-            return true;
-        }
+        !rng.is_multiple_of(2)
     }
 
     /// Call with the start and end of the range (both `usize`).
@@ -751,7 +751,7 @@ impl Fortuna {
                 let random_index = rng % range_size;
                 start.add(random_index)
             } else {
-                let random_index = (rng * -1.0) % range_size;
+                let random_index = -rng % range_size;
                 start.add(random_index)
             }
         } else if start == end {
@@ -784,7 +784,7 @@ impl Fortuna {
                 let random_index = rng % range_size;
                 start.add(random_index)
             } else {
-                let random_index = (rng * -1.0) % range_size;
+                let random_index = -rng % range_size;
                 start.add(random_index)
             }
         } else if start == end {
@@ -951,17 +951,11 @@ impl Fortuna {
 }
 
 fn is_valid_ascii(input: u8) -> bool {
-    if input >= 33 && input <= 126
+    (33..=126).contains(&input)
         || input == 128
-        || input >= 130 && input <= 140
+        || (130..=140).contains(&input)
         || input == 142
-        || input >= 145 && input <= 156
-        || input >= 158 && input <= 159
-        || input >= 161 && input <= 172
-        || input >= 174
-    {
-        return true;
-    } else {
-        return false;
-    }
+        || (145..=156).contains(&input)
+        || (158..=159).contains(&input)
+        || (161..=172).contains(&input) || input >= 174
 }

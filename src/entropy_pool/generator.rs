@@ -17,16 +17,15 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
         iteration_seed.reserve(seed.len() * 3);
         for s in seed {
             iteration_seed.push(*s);
-            if *s != 0 {
-                if iterations % 9 != 0 {
+            if *s != 0
+                && !iterations.is_multiple_of(9) {
                     for n in 0..=iterations % 9 {
-                        let s1: u16 = (*s as u16 >> n) as u16;
-                        let s2: u16 = ((*s as u16) << n) as u16;
+                        let s1: u16 = (u16::from(*s) >> n);
+                        let s2: u16 = (u16::from(*s) << n);
                         iteration_seed.extend_from_slice(&s1.to_le_bytes());
                         iteration_seed.extend_from_slice(&s2.to_le_bytes());
                     }
                 }
-            }
         }
     } else {
         iteration_seed = seed.clone();
@@ -48,7 +47,7 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
                         reversed_seed[j]
                     }
                 };
-                let tmp_bind = iteration_seed[i].overflowing_mul(tmp.into()).0;
+                let tmp_bind = iteration_seed[i].overflowing_mul(tmp).0;
                 all_matrix_matrix.append(&mut tmp_bind.to_le_bytes().to_vec());
             }
         }
@@ -63,7 +62,7 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
                         reversed_seed[j]
                     }
                 };
-                let tmp_bind = iteration_seed[i].overflowing_div(tmp.into()).0;
+                let tmp_bind = iteration_seed[i].overflowing_div(tmp).0;
                 all_matrix_divided.append(&mut tmp_bind.to_le_bytes().to_vec());
             }
         }
@@ -79,10 +78,10 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
                     }
                 };
                 if j % 2 == 0 && i % 3 == 0 {
-                    let tmp_bind: u8 = iteration_seed[i].overflowing_mul(tmp.into()).0;
+                    let tmp_bind: u8 = iteration_seed[i].overflowing_mul(tmp).0;
                     all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
                 } else {
-                    let tmp_bind: u8 = iteration_seed[i].overflowing_div(tmp.into()).0;
+                    let tmp_bind: u8 = iteration_seed[i].overflowing_div(tmp).0;
                     all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
                 }
             }
@@ -128,7 +127,8 @@ pub fn generate_entropy_pool() -> Vec<u8> {
             tmp
         };
         // this inverts the timestamp, putting the least changing bits last.
-        let out = {
+        
+        {
             let mut tmp: Vec<u8> = Vec::new();
             for t in store {
                 if t == 0 {
@@ -140,8 +140,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
                 }
             }
             tmp
-        };
-        out
+        }
     };
     let system_time_dur = time_now.elapsed().as_nanos();
 
@@ -202,16 +201,14 @@ pub fn generate_entropy_pool() -> Vec<u8> {
     let salt_time_spend_in_nsec = salt_time_dur.elapsed().as_nanos();
     let time_spend_in_nsec = time_now.elapsed().as_nanos();
 
-    let all_time_spend_vec = vec![
-        system_time_dur,
+    let all_time_spend_vec = [system_time_dur,
         matrix_time_spend_in_nsec,
         complete_system_time_in_nsec,
         fs_time_spend_in_nsec,
         fs_time_spend_in_nsec2,
         salt_time_spend_in_nsec,
         cpu_time_spend_in_nsec,
-        time_spend_in_nsec,
-    ];
+        time_spend_in_nsec];
 
     let mut all_time_spend_matrix: Vec<u8> = Vec::new();
     for i in 0..all_time_spend_vec.len() {
@@ -242,7 +239,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
                     sys_time_matrix[j]
                 }
             };
-            let tmp_bind = all_time_spend_matrix[i].overflowing_mul(tmp.into()).0;
+            let tmp_bind = all_time_spend_matrix[i].overflowing_mul(tmp).0;
             all_matrix_matrix.append(&mut tmp_bind.to_le_bytes().to_vec());
         }
     }
@@ -257,7 +254,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
                     sys_time_matrix[j]
                 }
             };
-            let tmp_bind = all_time_spend_matrix[i].overflowing_div(tmp.into()).0;
+            let tmp_bind = all_time_spend_matrix[i].overflowing_div(tmp).0;
             all_matrix_divided.append(&mut tmp_bind.to_le_bytes().to_vec());
         }
     }
@@ -273,10 +270,10 @@ pub fn generate_entropy_pool() -> Vec<u8> {
                 }
             };
             if j % 2 == 0 && i % 3 == 0 {
-                let tmp_bind: u8 = all_time_spend_matrix[i].overflowing_mul(tmp.into()).0;
+                let tmp_bind: u8 = all_time_spend_matrix[i].overflowing_mul(tmp).0;
                 all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
             } else {
-                let tmp_bind: u8 = all_time_spend_matrix[i].overflowing_div(tmp.into()).0;
+                let tmp_bind: u8 = all_time_spend_matrix[i].overflowing_div(tmp).0;
                 all_matrix_mul_with_extrema.append(&mut tmp_bind.to_le_bytes().to_vec());
             }
         }
@@ -336,7 +333,7 @@ pub fn generate_entropy_pool() -> Vec<u8> {
         };
         scrambled_pool.push(*all_matrix_combined[tmp_index]);
     }
-    return scrambled_pool;
+    scrambled_pool
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -347,13 +344,11 @@ fn fs_part_1() -> Vec<u8> {
         if let Ok(try_dir_nest_depth) = TryInto::<u8>::try_into(directory.ancestors().count()) {
             salt.push(try_dir_nest_depth);
         }
-        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
-            if let Ok(metadata) = root_dir.metadata() {
-                if let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
+        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1)
+            && let Ok(metadata) = root_dir.metadata()
+                && let Ok(root_dir_size) = TryInto::<u8>::try_into(metadata.size()) {
                     salt.push(root_dir_size);
                 }
-            }
-        }
     }
     salt
 }
@@ -378,9 +373,9 @@ fn fs_part_1() -> Vec<u8> {
 /// Linux or mac
 fn fs_part_2() -> Vec<u8> {
     let mut salt: Vec<u8> = Vec::new();
-    if let Ok(directory) = std::env::current_dir() {
-        if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
-            if let Ok(metadata) = root_dir.metadata() {
+    if let Ok(directory) = std::env::current_dir()
+        && let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1)
+            && let Ok(metadata) = root_dir.metadata() {
                 if let Ok(root_dir_device) = TryInto::<u8>::try_into(metadata.dev()) {
                     salt.push(root_dir_device);
                 }
@@ -388,8 +383,6 @@ fn fs_part_2() -> Vec<u8> {
                     salt.push(root_dir_ino);
                 }
             }
-        }
-    }
     salt
 }
 
