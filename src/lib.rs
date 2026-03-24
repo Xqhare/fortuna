@@ -523,11 +523,7 @@ impl Fortuna {
             self.entropy_pool.get_random_byte(),
         ];
         let out = f32::from_le_bytes(rng);
-        if out.is_nan() {
-            self.random_f32()
-        } else {
-            out
-        }
+        if out.is_nan() { self.random_f32() } else { out }
     }
 
     /// Generates a pseudo-random `f64`
@@ -554,11 +550,7 @@ impl Fortuna {
             self.entropy_pool.get_random_byte(),
         ];
         let out = f64::from_le_bytes(rng);
-        if out.is_nan() {
-            self.random_f64()
-        } else {
-            out
-        }
+        if out.is_nan() { self.random_f64() } else { out }
     }
 
     /// Generates a pseudo-random latin character.
@@ -959,7 +951,15 @@ impl Fortuna {
 }
 
 fn is_valid_ascii(input: u8) -> bool {
-    if input >= 33 && input <= 126 || input == 128 || input >= 130 && input <= 140 || input == 142 || input >= 145 && input <= 156 || input >= 158 && input <= 159 || input >= 161 && input <= 172 || input >= 174 {
+    if input >= 33 && input <= 126
+        || input == 128
+        || input >= 130 && input <= 140
+        || input == 142
+        || input >= 145 && input <= 156
+        || input >= 158 && input <= 159
+        || input >= 161 && input <= 172
+        || input >= 174
+    {
         return true;
     } else {
         return false;

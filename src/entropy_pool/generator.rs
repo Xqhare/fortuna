@@ -31,7 +31,7 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
     } else {
         iteration_seed = seed.clone();
     }
-    
+
     let mut reversed_seed = iteration_seed.clone();
     reversed_seed.reverse();
 
@@ -377,7 +377,6 @@ fn fs_part_1() -> Vec<u8> {
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Linux or mac
 fn fs_part_2() -> Vec<u8> {
-
     let mut salt: Vec<u8> = Vec::new();
     if let Ok(directory) = std::env::current_dir() {
         if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {
@@ -397,7 +396,6 @@ fn fs_part_2() -> Vec<u8> {
 #[cfg(target_os = "windows")]
 /// windows only
 fn fs_part_2() -> Vec<u8> {
-
     let mut salt: Vec<u8> = Vec::new();
     if let Ok(directory) = std::env::current_dir() {
         if let Some(root_dir) = directory.ancestors().nth(directory.ancestors().count() - 1) {

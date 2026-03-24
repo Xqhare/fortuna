@@ -115,7 +115,6 @@ fn defaults() {
 
     assert_eq!(random_ceiling_vec.len(), 10_000);
     assert_eq!(random_floor_vec.len(), 10_000);
-
 }
 
 #[test]
@@ -195,7 +194,7 @@ fn seeded_complete() {
         random_ceiling_vec.push(fortuna.random_with_ceiling(n));
         random_floor_vec.push(fortuna.random_with_floor(n));
     }
-    
+
     assert_eq!(random_u8_vec.len(), 10_000);
     assert_eq!(random_u16_vec.len(), 10_000);
     assert_eq!(random_u32_vec.len(), 10_000);
@@ -231,7 +230,6 @@ fn seeded_complete() {
 
     assert_eq!(random_ceiling_vec.len(), 10_000);
     assert_eq!(random_floor_vec.len(), 10_000);
-
 }
 
 #[test]
@@ -352,7 +350,13 @@ fn custom_large_pool_with_regeneration() {
 
 #[test]
 fn custom_large_seeded_pool_with_regeneration() {
-    let mut fortuna = Fortuna::create_seeded_size_restricted(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32], 100_000);
+    let mut fortuna = Fortuna::create_seeded_size_restricted(
+        vec![
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+            25, 26, 27, 28, 29, 30, 31, 32,
+        ],
+        100_000,
+    );
 
     let mut random_u8_vec = Vec::new();
     let mut random_u16_vec = Vec::new();
@@ -465,7 +469,6 @@ fn custom_large_seeded_pool_with_regeneration() {
     assert_eq!(random_ceiling_vec.len(), 10_000);
     assert_eq!(random_floor_vec.len(), 10_000);
 }
-
 
 #[test]
 fn custom_large_pool_without_regeneration() {
@@ -701,7 +704,8 @@ fn custom_small_pool_with_10_regenerations() {
 
 #[test]
 fn custom_small_seeded_pool_with_10_regenerations() {
-    let mut fortuna = Fortuna::create_seeded_size_restricted(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 25_000);
+    let mut fortuna =
+        Fortuna::create_seeded_size_restricted(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 25_000);
 
     let mut random_u8_vec = Vec::new();
     let mut random_u16_vec = Vec::new();
@@ -833,26 +837,59 @@ fn is_seeded_really_seeded() {
     assert_eq!(seeded1.random_f32(), seeded2.random_f32());
     assert_eq!(seeded1.random_f64(), seeded2.random_f64());
 
-    assert_eq!(seeded1.random_latin_char(false), seeded2.random_latin_char(false));
-    assert_eq!(seeded1.random_latin_char(true), seeded2.random_latin_char(true));
+    assert_eq!(
+        seeded1.random_latin_char(false),
+        seeded2.random_latin_char(false)
+    );
+    assert_eq!(
+        seeded1.random_latin_char(true),
+        seeded2.random_latin_char(true)
+    );
 
     assert_eq!(seeded1.random_ascii_char(), seeded2.random_ascii_char());
 
     assert_eq!(seeded1.random_bool(), seeded2.random_bool());
 
-    assert_eq!(seeded1.random_from_range(0, 10), seeded2.random_from_range(0, 10));
-    assert_eq!(seeded1.random_from_u32_range(0, 10), seeded2.random_from_u32_range(0, 10));
-    assert_eq!(seeded1.random_from_u64_range(0, 10), seeded2.random_from_u64_range(0, 10));
+    assert_eq!(
+        seeded1.random_from_range(0, 10),
+        seeded2.random_from_range(0, 10)
+    );
+    assert_eq!(
+        seeded1.random_from_u32_range(0, 10),
+        seeded2.random_from_u32_range(0, 10)
+    );
+    assert_eq!(
+        seeded1.random_from_u64_range(0, 10),
+        seeded2.random_from_u64_range(0, 10)
+    );
 
-    assert_eq!(seeded1.random_from_i_range(-10, 10), seeded2.random_from_i_range(-10, 10));
-    assert_eq!(seeded1.random_from_i32_range(-10, 10), seeded2.random_from_i32_range(-10, 10));
-    assert_eq!(seeded1.random_from_i64_range(-10, 10), seeded2.random_from_i64_range(-10, 10));
+    assert_eq!(
+        seeded1.random_from_i_range(-10, 10),
+        seeded2.random_from_i_range(-10, 10)
+    );
+    assert_eq!(
+        seeded1.random_from_i32_range(-10, 10),
+        seeded2.random_from_i32_range(-10, 10)
+    );
+    assert_eq!(
+        seeded1.random_from_i64_range(-10, 10),
+        seeded2.random_from_i64_range(-10, 10)
+    );
 
-    assert_eq!(seeded1.random_from_f32_range(-10.0, 10.0), seeded2.random_from_f32_range(-10.0, 10.0));
-    assert_eq!(seeded1.random_from_f64_range(-10.0, 10.0), seeded2.random_from_f64_range(-10.0, 10.0));
+    assert_eq!(
+        seeded1.random_from_f32_range(-10.0, 10.0),
+        seeded2.random_from_f32_range(-10.0, 10.0)
+    );
+    assert_eq!(
+        seeded1.random_from_f64_range(-10.0, 10.0),
+        seeded2.random_from_f64_range(-10.0, 10.0)
+    );
 
     assert_eq!(seeded1.random_index(10), seeded2.random_index(10));
-    assert_eq!(seeded1.random_with_ceiling(10), seeded2.random_with_ceiling(10));
+    assert_eq!(
+        seeded1.random_with_ceiling(10),
+        seeded2.random_with_ceiling(10)
+    );
     assert_eq!(seeded1.random_with_floor(10), seeded2.random_with_floor(10));
 }
 

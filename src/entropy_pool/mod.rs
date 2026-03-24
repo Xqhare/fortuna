@@ -39,7 +39,7 @@ impl EntropyPool {
             pool_index: 0,
             restricted_pool: false,
             seeded_iteration: 0,
-            seed: Some(seed)
+            seed: Some(seed),
         }
     }
 
@@ -82,7 +82,11 @@ impl EntropyPool {
     fn regenerate_pool(&mut self) {
         if self.restricted_pool {
             if self.seed.is_some() {
-                self.pool = generate_seeded_restricted_pool(self.seed.as_ref().unwrap(), self.initial_pool_size, self.seeded_iteration);
+                self.pool = generate_seeded_restricted_pool(
+                    self.seed.as_ref().unwrap(),
+                    self.initial_pool_size,
+                    self.seeded_iteration,
+                );
                 self.seeded_iteration += 1;
                 self.pool_index = 0;
             } else {
@@ -91,7 +95,8 @@ impl EntropyPool {
             }
         } else {
             if self.seed.is_some() {
-                self.pool = generate_seeded_pool(self.seed.as_ref().unwrap(), self.seeded_iteration);
+                self.pool =
+                    generate_seeded_pool(self.seed.as_ref().unwrap(), self.seeded_iteration);
                 self.initial_pool_size = self.pool.len();
                 self.seeded_iteration += 1;
                 self.pool_index = 0;
@@ -104,7 +109,11 @@ impl EntropyPool {
     }
 }
 
-fn generate_seeded_restricted_pool(seed: &Vec<u8>, initial_pool_size: usize, iterations: u32) -> Vec<u8> {
+fn generate_seeded_restricted_pool(
+    seed: &Vec<u8>,
+    initial_pool_size: usize,
+    iterations: u32,
+) -> Vec<u8> {
     let large_pool = generate_seeded_pool(seed, iterations);
     if large_pool.len() < initial_pool_size {
         let mut enlarged_pool = large_pool;
