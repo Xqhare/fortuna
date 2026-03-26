@@ -19,8 +19,8 @@ pub fn generate_seeded_pool(seed: &Vec<u8>, iterations: u32) -> Vec<u8> {
             iteration_seed.push(*s);
             if *s != 0 && !iterations.is_multiple_of(9) {
                 for n in 0..=iterations % 9 {
-                    let s1: u16 = u16::from(*s) >> n ;
-                    let s2: u16 = u16::from(*s) << n ;
+                    let s1: u16 = u16::from(*s) >> n;
+                    let s2: u16 = u16::from(*s) << n;
                     iteration_seed.extend_from_slice(&s1.to_le_bytes());
                     iteration_seed.extend_from_slice(&s2.to_le_bytes());
                 }
