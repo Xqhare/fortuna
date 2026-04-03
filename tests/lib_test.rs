@@ -1,3 +1,4 @@
+use athena::rng_api::RngApi;
 use std::collections::HashMap;
 
 use fortuna::Fortuna;
@@ -43,41 +44,41 @@ fn defaults() {
     let mut random_floor_vec = Vec::new();
 
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -158,41 +159,41 @@ fn seeded_complete() {
     let mut random_floor_vec = Vec::new();
 
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -274,41 +275,41 @@ fn custom_large_pool_with_regeneration() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -396,41 +397,41 @@ fn custom_large_seeded_pool_with_regeneration() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -512,41 +513,41 @@ fn custom_large_pool_without_regeneration() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -628,41 +629,41 @@ fn custom_small_pool_with_10_regenerations() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -745,41 +746,41 @@ fn custom_small_seeded_pool_with_10_regenerations() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -824,73 +825,73 @@ fn is_seeded_really_seeded() {
     let mut seeded1 = Fortuna::create_seeded(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     let mut seeded2 = Fortuna::create_seeded(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-    assert_eq!(seeded1.random_u8(), seeded2.random_u8());
-    assert_eq!(seeded1.random_u16(), seeded2.random_u16());
-    assert_eq!(seeded1.random_u32(), seeded2.random_u32());
-    assert_eq!(seeded1.random_u64(), seeded2.random_u64());
+    assert_eq!(seeded1.random_u8().unwrap(), seeded2.random_u8().unwrap());
+    assert_eq!(seeded1.random_u16().unwrap(), seeded2.random_u16().unwrap());
+    assert_eq!(seeded1.random_u32().unwrap(), seeded2.random_u32().unwrap());
+    assert_eq!(seeded1.random_u64().unwrap(), seeded2.random_u64().unwrap());
 
-    assert_eq!(seeded1.random_i8(), seeded2.random_i8());
-    assert_eq!(seeded1.random_i16(), seeded2.random_i16());
-    assert_eq!(seeded1.random_i32(), seeded2.random_i32());
-    assert_eq!(seeded1.random_i64(), seeded2.random_i64());
+    assert_eq!(seeded1.random_i8().unwrap(), seeded2.random_i8().unwrap());
+    assert_eq!(seeded1.random_i16().unwrap(), seeded2.random_i16().unwrap());
+    assert_eq!(seeded1.random_i32().unwrap(), seeded2.random_i32().unwrap());
+    assert_eq!(seeded1.random_i64().unwrap(), seeded2.random_i64().unwrap());
 
-    assert_eq!(seeded1.random_f32(), seeded2.random_f32());
-    assert_eq!(seeded1.random_f64(), seeded2.random_f64());
+    assert_eq!(seeded1.random_f32().unwrap(), seeded2.random_f32().unwrap());
+    assert_eq!(seeded1.random_f64().unwrap(), seeded2.random_f64().unwrap());
 
     assert_eq!(
-        seeded1.random_latin_char(false),
-        seeded2.random_latin_char(false)
+        seeded1.random_latin_char(false).unwrap(),
+        seeded2.random_latin_char(false).unwrap()
     );
     assert_eq!(
-        seeded1.random_latin_char(true),
-        seeded2.random_latin_char(true)
+        seeded1.random_latin_char(true).unwrap(),
+        seeded2.random_latin_char(true).unwrap()
     );
 
-    assert_eq!(seeded1.random_ascii_char(), seeded2.random_ascii_char());
+    assert_eq!(seeded1.random_ascii_char().unwrap(), seeded2.random_ascii_char().unwrap());
 
-    assert_eq!(seeded1.random_bool(), seeded2.random_bool());
+    assert_eq!(seeded1.random_bool().unwrap(), seeded2.random_bool().unwrap());
 
     assert_eq!(
-        seeded1.random_from_range(0, 10),
-        seeded2.random_from_range(0, 10)
+        seeded1.random_from_range(0, 10).unwrap(),
+        seeded2.random_from_range(0, 10).unwrap()
     );
     assert_eq!(
         seeded1.random_from_u32_range(0, 10),
         seeded2.random_from_u32_range(0, 10)
     );
     assert_eq!(
-        seeded1.random_from_u64_range(0, 10),
-        seeded2.random_from_u64_range(0, 10)
+        seeded1.random_from_u64_range(0, 10).unwrap(),
+        seeded2.random_from_u64_range(0, 10).unwrap()
     );
 
     assert_eq!(
-        seeded1.random_from_i_range(-10, 10),
-        seeded2.random_from_i_range(-10, 10)
+        seeded1.random_from_i_range(-10, 10).unwrap(),
+        seeded2.random_from_i_range(-10, 10).unwrap()
     );
     assert_eq!(
-        seeded1.random_from_i32_range(-10, 10),
-        seeded2.random_from_i32_range(-10, 10)
+        seeded1.random_from_i32_range(-10, 10).unwrap(),
+        seeded2.random_from_i32_range(-10, 10).unwrap()
     );
     assert_eq!(
-        seeded1.random_from_i64_range(-10, 10),
-        seeded2.random_from_i64_range(-10, 10)
+        seeded1.random_from_i64_range(-10, 10).unwrap(),
+        seeded2.random_from_i64_range(-10, 10).unwrap()
     );
 
     assert_eq!(
-        seeded1.random_from_f32_range(-10.0, 10.0),
-        seeded2.random_from_f32_range(-10.0, 10.0)
+        seeded1.random_from_f32_range(-10.0, 10.0).unwrap(),
+        seeded2.random_from_f32_range(-10.0, 10.0).unwrap()
     );
     assert_eq!(
-        seeded1.random_from_f64_range(-10.0, 10.0),
-        seeded2.random_from_f64_range(-10.0, 10.0)
+        seeded1.random_from_f64_range(-10.0, 10.0).unwrap(),
+        seeded2.random_from_f64_range(-10.0, 10.0).unwrap()
     );
 
-    assert_eq!(seeded1.random_index(10), seeded2.random_index(10));
+    assert_eq!(seeded1.random_index(10).unwrap(), seeded2.random_index(10).unwrap());
     assert_eq!(
-        seeded1.random_with_ceiling(10),
-        seeded2.random_with_ceiling(10)
+        seeded1.random_with_ceiling(10).unwrap(),
+        seeded2.random_with_ceiling(10).unwrap()
     );
-    assert_eq!(seeded1.random_with_floor(10), seeded2.random_with_floor(10));
+    assert_eq!(seeded1.random_with_floor(10).unwrap(), seeded2.random_with_floor(10).unwrap());
 }
 
 #[test]
@@ -899,7 +900,7 @@ fn seeded_completeness() {
     let mut map: HashMap<u8, _> = HashMap::new();
 
     for _ in 0..100_000 {
-        map.insert(fortuna.random_u8(), ());
+        map.insert(fortuna.random_u8().unwrap(), ());
     }
 
     // This should Ideally be true. It is not.
@@ -953,41 +954,41 @@ fn custom_small_pool_with_100_regenerations() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
@@ -1071,41 +1072,41 @@ fn custom_small_pool_with_1000_regenerations() {
 
     // polls 250 000 times (25 items * 10 000 iterations)
     for n in 0..10_000 {
-        random_u8_vec.push(fortuna.random_u8());
-        random_u16_vec.push(fortuna.random_u16());
-        random_u32_vec.push(fortuna.random_u32());
-        random_u64_vec.push(fortuna.random_u64());
+        random_u8_vec.push(fortuna.random_u8().unwrap());
+        random_u16_vec.push(fortuna.random_u16().unwrap());
+        random_u32_vec.push(fortuna.random_u32().unwrap());
+        random_u64_vec.push(fortuna.random_u64().unwrap());
 
-        random_i8_vec.push(fortuna.random_i8());
-        random_i16_vec.push(fortuna.random_i16());
-        random_i32_vec.push(fortuna.random_i32());
-        random_i64_vec.push(fortuna.random_i64());
+        random_i8_vec.push(fortuna.random_i8().unwrap());
+        random_i16_vec.push(fortuna.random_i16().unwrap());
+        random_i32_vec.push(fortuna.random_i32().unwrap());
+        random_i64_vec.push(fortuna.random_i64().unwrap());
 
-        random_f32_vec.push(fortuna.random_f32());
-        random_f64_vec.push(fortuna.random_f64());
+        random_f32_vec.push(fortuna.random_f32().unwrap());
+        random_f64_vec.push(fortuna.random_f64().unwrap());
 
-        lowercase_char_vec.push(fortuna.random_latin_char(false));
-        uppercase_char_vec.push(fortuna.random_latin_char(true));
+        lowercase_char_vec.push(fortuna.random_latin_char(false).unwrap());
+        uppercase_char_vec.push(fortuna.random_latin_char(true).unwrap());
 
-        ascii_char_vec.push(fortuna.random_ascii_char());
+        ascii_char_vec.push(fortuna.random_ascii_char().unwrap());
 
-        random_bool_vec.push(fortuna.random_bool());
+        random_bool_vec.push(fortuna.random_bool().unwrap());
 
-        random_u_range_vec.push(fortuna.random_from_range(0, n));
+        random_u_range_vec.push(fortuna.random_from_range(0, n).unwrap());
         random_u32_range_vec.push(fortuna.random_from_u32_range(0, n as u32));
-        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64));
+        random_u64_range_vec.push(fortuna.random_from_u64_range(0, n as u64).unwrap());
 
-        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize));
-        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32));
-        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64));
+        random_i_range_vec.push(fortuna.random_from_i_range(-(n as isize), n as isize).unwrap());
+        random_i32_range_vec.push(fortuna.random_from_i32_range(-(n as i32), n as i32).unwrap());
+        random_i64_range_vec.push(fortuna.random_from_i64_range(-(n as i64), n as i64).unwrap());
 
-        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32));
-        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64));
+        random_f32_range_vec.push(fortuna.random_from_f32_range(-(n as f32), n as f32).unwrap());
+        random_f64_range_vec.push(fortuna.random_from_f64_range(-(n as f64), n as f64).unwrap());
 
-        random_index_vec.push(fortuna.random_index(n));
+        random_index_vec.push(fortuna.random_index(n).unwrap());
 
-        random_ceiling_vec.push(fortuna.random_with_ceiling(n));
-        random_floor_vec.push(fortuna.random_with_floor(n));
+        random_ceiling_vec.push(fortuna.random_with_ceiling(n).unwrap());
+        random_floor_vec.push(fortuna.random_with_floor(n).unwrap());
     }
 
     assert_eq!(random_u8_vec.len(), 10_000);
