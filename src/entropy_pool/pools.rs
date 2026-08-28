@@ -3,7 +3,7 @@
 //! No two arrays are the same.
 
 pub fn get_pool(index: u8) -> [u8; 256] {
-    let index = index % POOLS.len() as u8;
+    let index = if index != 0 { index % 255 } else { 0 };
     POOLS[index as usize]
 }
 pub static POOLS: [[u8; 256]; 256] = [

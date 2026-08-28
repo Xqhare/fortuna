@@ -643,8 +643,8 @@ fn seeded_completeness() {
         map.insert(fortuna.random_u8().unwrap(), ());
     }
 
-    // This should Ideally be true. It is not.
-    assert_eq!(map.len(), 255);
+    // This should Ideally be true.
+    assert_eq!(map.len(), 256);
 
     // absolute minimum
     assert!(map.len() > 35);
