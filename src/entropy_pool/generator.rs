@@ -11,19 +11,16 @@ use crate::entropy_pool::pools::get_pool;
 ///
 /// # Notes
 /// Does one allocation, then only swaps the bytes
-pub fn shuffle_pool(pool_num: u8, seed: &[u8]) -> [u8; 255] {
+pub fn shuffle_pool(pool_num: u8, seed: &[u8]) -> [u8; 256] {
     let mut pool = get_pool(pool_num).to_vec();
-    debug_assert!(pool.len() == 255, "Pool must be 255 bytes long");
+    debug_assert!(pool.len() == 256, "Pool must be 255 bytes long");
     for seed_byte in seed.iter() {
         let idx1 = if *seed_byte == 255 {
             1
         } else {
             *seed_byte as usize
         };
-        pool.swap(
-            idx1,
-            255usize.saturating_sub(*seed_byte as usize).clamp(0, 254),
-        );
+        pool.swap(idx1, 255usize.saturating_sub(*seed_byte as usize) % 255);
     }
     match pool.try_into() {
         Ok(pool) => pool,

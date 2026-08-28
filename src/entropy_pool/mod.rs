@@ -10,7 +10,7 @@ mod pools;
 ///
 /// Constructed with a seed vector via [`EntropyPool::new`].
 pub struct EntropyPool {
-    pool: [u8; 255],
+    pool: [u8; 256],
     pool_index: u8,
     seeded_iteration: u32,
     seed: Vec<u8>,
@@ -28,6 +28,7 @@ impl EntropyPool {
             0
         };
         let pool = shuffle_pool(pool_num, &seed);
+        let seed = if seed.is_empty() { vec![0] } else { seed };
         Self {
             pool,
             pool_index: 0,
@@ -52,7 +53,7 @@ impl EntropyPool {
         self.pool_index = 0;
         self.seeded_iteration = self.seeded_iteration.wrapping_add(1);
         let next_pool = self.seed[self.seeded_iteration as usize % self.seed.len()];
-        if self.seed.len() < 255 {
+        if self.seed.len() < 256 {
             self.seed
                 .push(next_pool.wrapping_add((self.seeded_iteration % 255) as u8));
         }

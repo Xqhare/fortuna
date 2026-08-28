@@ -220,7 +220,7 @@ impl RngApi for Fortuna {
 
     fn random_bool(&mut self) -> RngResult<bool> {
         let rng = self.entropy_pool.get_random_byte();
-        Ok(rng % 2 != 0)
+        Ok(!rng.is_multiple_of(2))
     }
 
     fn random_from_range_inclusive(&mut self, min: usize, max: usize) -> RngResult<usize> {
@@ -345,5 +345,5 @@ impl RngApi for Fortuna {
 }
 
 fn is_valid_ascii(input: u8) -> bool {
-    input <= 127 && input >= 32
+    (32..=127).contains(&input)
 }
