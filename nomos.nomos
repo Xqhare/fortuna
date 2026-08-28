@@ -1,1 +1,11 @@
-- [ ] (9) Rework backend :: Again, to get a better spread across all `u8` values
+- [ ] (9) Rework backend :: Lean more into the determenistic nature
+	* All entropy is provided by the seed
+	- [ ] Ensure spread across all possible values
+		* Same Issue as with the v1 of fortuna.
+		* I want all u8 values to be provided at some point.
+		* Easiest way I see right now: provide lists of 0-255 in different sequences
+		* Use the seed to choose one of the lists as the master list
+		* Shuffle master list with seed
+		* Each `get` gets a value from the master list (iterating through the list)
+		* Use a simple counter (adding one for each full iteration through the generated pool) to generate the next list of values after master list has been iterated through
+		* How exactly? Add the counter to the seed probably and run the entire thing again. (Sum the byte array with the counter, mod by the list counter.)

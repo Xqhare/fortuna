@@ -1,38 +1,8 @@
-/*!
-# Fortuna
-A dependency-free, deterministic, panic-proof PRNG for any OS on any hardware.
-
-If you are looking for a true CSPRNG check out my project [Tyche](https://github.com/xqhare/tyche).
-
-It is recommended to use Fortuna on `x86_64`, riscv64 or aarch64 CPU architectures. On all other architectures, Fortuna will not be able to read the CPU features and fall back to a pre-generated entropy source instead.
-
-For more information, please refer to the README.md file in the repository.
-
-## Usage
-First add `fortuna` to your `Cargo.toml`:
-
-```toml
-[dependencies]
-fortuna = { git = "https://github.com/Xqhare/fortuna" }
-```
-
-Then run `cargo update` to pull the latest version.
-
-## Entropy sources
-Fortuna uses the following entropy sources:
-- System time
-- File system properties (if available)
-    - Main disk device ID and inode number
-    - Directory nest depth to root
-    - Current working directory properties
-- Code execution times
-- CPU features
-
-*/
+#[doc = include_str!("../README.md")]
 mod entropy_pool;
 
 use crate::entropy_pool::EntropyPool;
-use athena::rng_api::{RngApi, RngResult};
+pub use athena::rng_api::{RngApi, RngResult};
 use std::ops::{Add, Sub};
 
 /// `Fortuna` is a struct that contains a pool of pseudo-random bytes.
@@ -40,10 +10,7 @@ use std::ops::{Add, Sub};
 ///
 /// `Fortuna` is designed to be created once and reused.
 ///
-/// `Fortuna` does not panic.
-///
-/// Generating or regenerating the entropy pool is an expensive operation, so it is recommended to
-/// keep the pool size on the larger side if you are constructing `Fortuna` by using `create_size_restricted`.
+/// `Fortuna` does not panic and guarantees to always return `Ok`.
 pub struct Fortuna {
     entropy_pool: EntropyPool,
 }
@@ -51,84 +18,30 @@ pub struct Fortuna {
 impl Fortuna {
     /// Creates a new `Fortuna` instance.
     ///
-    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
+    /// `Fortuna` contains a pool of entropy. Generating the pool can be resource intensive, so make
     /// sure to use as few instances as possible.
     /// The pool will regenerate itself if it is empty.
     ///
-    /// Use `create_size_restricted` to create a new instance with a size restricted pool.
+    /// Please supply a seed vector with at least one element.
+    /// The more the better.
+    /// The seed is the only real source of entropy.
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(seed: Vec<u8>) -> Self {
         Self {
-            entropy_pool: EntropyPool::new(),
-        }
-    }
-
-    /// Creates a new `Fortuna` instance with a restricted pool size.
-    /// This is useful if you are only generating a small number of random values, or operating
-    /// with little memory.
-    /// Generating entropy is resource intensive, so the pool size should be chosen to minimize
-    /// regenerations.
-    ///
-    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
-    /// sure to use as few instances as possible.
-    /// The pool will regenerate itself if it is empty.
-    ///
-    /// ## Parameters:
-    /// - `initial_pool_size`: The initial size of the pool.
-    #[must_use]
-    pub fn create_size_restricted(initial_pool_size: usize) -> Self {
-        Self {
-            entropy_pool: EntropyPool::create_size_restricted(initial_pool_size),
-        }
-    }
-
-    /// Creates a new `Fortuna` instance with a seeded entropy pool.
-    /// This is useful if you want to generate the same random values every time.
-    /// The seed should be chosen randomly, and kept secret.
-    /// The pool will regenerate itself if it is empty.
-    ///
-    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
-    /// sure to use as few instances as possible.
-    /// The pool will regenerate itself if it is empty.
-    ///
-    /// ## Parameters:
-    /// - `seed`: The seed to use for the entropy pool.
-    #[must_use]
-    pub fn create_seeded(seed: Vec<u8>) -> Self {
-        Self {
-            entropy_pool: EntropyPool::create_seeded(seed),
-        }
-    }
-
-    /// Creates a new `Fortuna` instance with a seeded and size restricted entropy pool.
-    /// This is useful if you want to generate the same random values every time.
-    /// The seed should be chosen randomly, and kept secret.
-    /// The pool will regenerate itself if it is empty.
-    ///
-    /// `Fortuna` contains a pool of entropy. Generating the pool is resource intensive, so make
-    /// sure to use as few instances as possible.
-    /// The pool will regenerate itself if it is empty.
-    ///
-    /// ## Parameters:
-    /// - `seed`: The seed to use for the entropy pool.
-    /// - `initial_pool_size`: The initial size of the pool.
-    #[must_use]
-    pub fn create_seeded_size_restricted(seed: Vec<u8>, initial_pool_size: usize) -> Self {
-        Self {
-            entropy_pool: EntropyPool::create_seeded_size_restricted(initial_pool_size, seed),
+            entropy_pool: EntropyPool::new(seed),
         }
     }
 
     /// Call with the start and end of the range (both `u32`).
     /// The range is inclusive on both ends.
-    pub fn random_from_u32_range(&mut self, start: u32, end: u32) -> u32 {
+    pub fn random_from_u32_range(&mut self, start: u32, end: u32) -> RngResult<u32> {
         if start < end {
             let range_size = (end).saturating_sub(start).saturating_add(1);
             let rng = self.random_u32().unwrap_or(0);
             let random_index = rng % range_size;
-            start.saturating_add(random_index)
+            Ok(start.saturating_add(random_index))
         } else if start == end {
-            start
+            Ok(start)
         } else {
             self.random_from_u32_range(end, start)
         }
