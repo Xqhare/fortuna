@@ -26,7 +26,7 @@ impl Fortuna {
     /// The more the better.
     /// The seed is the only real source of entropy.
     #[must_use]
-    pub fn new(seed: Vec<u8>) -> Self {
+    pub fn new<V: Into<Vec<u8>>>(seed: V) -> Self {
         Self {
             entropy_pool: EntropyPool::new(seed),
         }

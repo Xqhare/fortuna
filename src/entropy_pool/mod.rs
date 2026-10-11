@@ -21,7 +21,8 @@ impl EntropyPool {
     ///
     /// Please supply a seed vector with at least one element.
     /// The more the better.
-    pub fn new(seed: Vec<u8>) -> Self {
+    pub fn new<V: Into<Vec<u8>>>(seed: V) -> Self {
+        let seed = seed.into();
         let pool_num = if let Some(first) = seed.first() {
             *first
         } else {
