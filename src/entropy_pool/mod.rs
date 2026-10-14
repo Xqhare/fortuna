@@ -28,8 +28,11 @@ impl EntropyPool {
         } else {
             0
         };
-        let pool = shuffle_pool(pool_num, &seed);
         let seed = if seed.is_empty() { vec![0] } else { seed };
+        println!("pool_num: {}", pool_num);
+        println!("seed_len: {}", seed.len());
+        println!("is_seed_empty: {}", seed.is_empty());
+        let pool = shuffle_pool(pool_num, &seed);
         Self {
             pool,
             pool_index: 0,

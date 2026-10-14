@@ -649,3 +649,11 @@ fn seeded_completeness() {
     // absolute minimum
     assert!(map.len() > 35);
 }
+
+#[test]
+fn empty_seed() {
+    let empty_seed: Vec<u8> = Vec::new();
+    assert!(empty_seed.is_empty());
+    let mut fortuna = Fortuna::new(Vec::new());
+    assert!(fortuna.random_u8().is_ok());
+}
