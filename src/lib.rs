@@ -209,28 +209,8 @@ impl RngApi for Fortuna {
     }
 
     fn random_ascii_char(&mut self) -> RngResult<char> {
-        let ran_u8 = self.entropy_pool.get_random_byte();
-        if is_valid_ascii(ran_u8) {
-            Ok(char::from_u32(u32::from(ran_u8)).expect("Valid ASCII character"))
-        } else {
-            let try1 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
-            if is_valid_ascii(try1) {
-                return Ok(char::from_u32(u32::from(try1)).expect("Valid ASCII character"));
-            }
-            let try2 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
-            if is_valid_ascii(try2) {
-                return Ok(char::from_u32(u32::from(try2)).expect("Valid ASCII character"));
-            }
-            let try3 = ran_u8.saturating_add(self.entropy_pool.get_random_byte());
-            if is_valid_ascii(try3) {
-                return Ok(char::from_u32(u32::from(try3)).expect("Valid ASCII character"));
-            }
-            let try4 = ran_u8.saturating_sub(self.entropy_pool.get_random_byte());
-            if is_valid_ascii(try4) {
-                return Ok(char::from_u32(u32::from(try4)).expect("Valid ASCII character"));
-            }
-            self.random_ascii_char()
-        }
+        let val = self.random_from_range_inclusive(32, 126)?;
+        Ok(val as u8 as char)
     }
 
     fn random_bool(&mut self) -> RngResult<bool> {
