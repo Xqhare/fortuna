@@ -2,6 +2,7 @@
 mod entropy_pool;
 
 use crate::entropy_pool::EntropyPool;
+use athena::XffValue;
 pub use athena::rng_api::{RngApi, RngResult};
 use std::ops::{Add, Sub};
 
@@ -45,6 +46,20 @@ impl Fortuna {
         } else {
             self.random_from_u32_range(end, start)
         }
+    }
+
+    /// Converts the `EntropyPool` to a `XffValue`.
+    ///
+    /// Useful for serialization if the state of the `EntropyPool` is needed or wanted for re-initialization.
+    pub fn to_xff(&self) -> XffValue {
+        self.entropy_pool.to_xff()
+    }
+
+    /// Converts the `XffValue` to a `EntropyPool`.
+    ///
+    /// Use [`EntropyPool::to_xff`] to convert a `EntropyPool` to an `XffValue`.
+    pub fn from_xff(xff: &XffValue) -> RngResult<Self> {
+        EntropyPool::from_xff(xff).map(|entropy_pool| Self { entropy_pool })
     }
 }
 
