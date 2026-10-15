@@ -4,6 +4,19 @@ use std::collections::HashMap;
 use fortuna::Fortuna;
 
 #[test]
+fn serde() {
+    let mut fortuna = Fortuna::new(vec![1, 2, 3, 4]);
+    assert!(fortuna.random_u8().is_ok());
+    let xff = fortuna.to_xff();
+    let reinitalised_fortuna = Fortuna::from_xff(&xff);
+    assert!(reinitalised_fortuna.is_ok());
+    let mut reinitalised_fortuna = reinitalised_fortuna.unwrap();
+    let y = fortuna.random_u8().unwrap();
+    let z = reinitalised_fortuna.random_u8().unwrap();
+    assert_eq!(y, z);
+}
+
+#[test]
 fn defaults() {
     let mut fortuna = Fortuna::new(vec![1, 2, 3, 4]);
 
