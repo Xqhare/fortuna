@@ -17,6 +17,7 @@ mod pools;
 /// Constructed with a seed vector via [`EntropyPool::new`].
 pub struct EntropyPool {
     pool: [u8; 256],
+    current_pool: u8,
     pool_index: u8,
     seeded_iteration: u32,
     seed: Vec<u8>,
@@ -41,6 +42,7 @@ impl EntropyPool {
         let pool = shuffle_pool(pool_num, &seed);
         Self {
             pool,
+            current_pool: pool_num,
             pool_index: 0,
             seeded_iteration: 0,
             seed,
@@ -53,6 +55,7 @@ impl EntropyPool {
     pub fn to_xff(&self) -> XffValue {
         let mut obj = Object::new();
         obj.insert("pool_index", self.pool_index);
+        obj.insert("current_pool", self.current_pool);
         obj.insert("seeded_iteration", self.seeded_iteration);
         let mut seed = Array::new();
         for s in &self.seed {
@@ -74,6 +77,9 @@ impl EntropyPool {
             && let Some(pool_index) = obj.get("pool_index")
             && let Some(pool_index) = pool_index.as_number()
             && let Some(pool_index) = pool_index.into_usize()
+            && let Some(current_pool) = obj.get("current_pool")
+            && let Some(current_pool) = current_pool.as_number()
+            && let Some(current_pool) = current_pool.into_usize()
             && let Some(seeded_iteration) = obj.get("seeded_iteration")
             && let Some(seeded_iteration) = seeded_iteration.as_number()
             && let Some(seeded_iteration) = seeded_iteration.into_usize()
@@ -82,18 +88,16 @@ impl EntropyPool {
         {
             let pool_index = pool_index as u8;
             let seeded_iteration = seeded_iteration as u32;
+            let current_pool = current_pool as u8;
             let seed: Vec<u8> = seed
                 .iter()
                 .map(|s| s.as_number().unwrap().into_usize().unwrap() as u8)
                 .collect();
-            if seed.is_empty() {
-                return Err(RngError::Generic(
-                    "Cannot create EntropyPool from passed XffValue. Seed is empty".to_string(),
-                ));
-            }
-            let pool = shuffle_pool(pool_index, &seed);
+            let seed = if seed.is_empty() { vec![0] } else { seed };
+            let pool = shuffle_pool(current_pool, &seed);
             Ok(EntropyPool {
                 pool,
+                current_pool,
                 pool_index,
                 seeded_iteration,
                 seed,
@@ -120,11 +124,20 @@ impl EntropyPool {
     /// Regenerates the pool.
     fn regenerate_pool(&mut self) {
         self.pool_index = 0;
+        let next_seeds = self
+            .seeded_iteration
+            .overflowing_add(self.current_pool as u32)
+            .0
+            .to_le_bytes();
         self.seeded_iteration = self.seeded_iteration.wrapping_add(1);
-        let next_pool = self.seed[self.seeded_iteration as usize % self.seed.len()];
+        let next_pool = self.current_pool.wrapping_add(self.seeded_iteration as u8) % 255;
+        self.current_pool = next_pool;
         if self.seed.len() < 256 {
-            self.seed
-                .push(next_pool.wrapping_add((self.seeded_iteration % 255) as u8));
+            self.seed.extend(next_seeds);
+        } else {
+            if self.seeded_iteration % 128 == 0 {
+                self.seed.extend(next_seeds);
+            }
         }
         self.pool = shuffle_pool(next_pool, &self.seed);
     }
