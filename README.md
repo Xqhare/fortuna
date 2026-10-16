@@ -9,7 +9,8 @@ If you are looking for a true CSPRNG check out my project [Tyche](https://github
 
 - Performant
 - Deterministic
-- Panic-proof / no errors
+- Panic-proof
+- Persistency Capable
 - No dependencies
 
 ## Naming
@@ -24,6 +25,40 @@ fortuna = { git = "https://github.com/Xqhare/fortuna" }
 ```
 
 Then run `cargo update` to pull the latest version.
+
+### The Seed
+
+To initalise a new `Fortuna` instance, you must provide a seed vector of u8 values.
+Recommended seed lengths can be found in the `crate::seed_lengths` module.
+
+Using an empty vector will result in an error.
+
+To increase the perceived randomness, ensure that as many byte values from 0x00 to 0xFF are used in your seed as possible.
+
+#### ASCII Seeds
+
+Using ASCII characters exclusively (0x32 - 0x7E) limits the available entropy significantly, as possible transformations are limited to around ~40% of the available byte range.
+
+If you want to use ASCII seed, please limit it to the value of `crate::seed_lengths::FROM_ASCII_RECOMMENDED_MAX` or less. Using more has no real or beneficial impact on the entropy, but reduces performance.
+
+### Persistency
+
+`Fortuna` can be persisted to disk using the `to_xff` function and my `nabu` library.
+It can then be reinitialised using the `from_xff` function.
+
+The newly reinitialised `Fortuna` instance will behave identically to the original.
+
+```rust
+use fortuna::{Fortuna, RngApi};
+
+let mut fortuna = Fortuna::new(vec![1, 2, 3, 4]);
+assert!(fortuna.random_u8().is_ok());
+let xff = fortuna.to_xff();
+let mut reinitalised_fortuna = Fortuna::from_xff(&xff).unwrap();
+let y = fortuna.random_u8().unwrap();
+let z = reinitalised_fortuna.random_u8().unwrap();
+assert_eq!(y, z);
+```
 
 ### Example
 As `Fortuna` is quite small in scope, every function is listed in the example below.

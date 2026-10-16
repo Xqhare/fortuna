@@ -6,6 +6,27 @@ use athena::XffValue;
 pub use athena::rng_api::{RngApi, RngResult};
 use std::ops::{Add, Sub};
 
+/// Recommended Seed lengths for all use cases
+pub mod seed_lengths {
+    /// The minimum seed length.
+    ///
+    /// Choosing a value lower than this will lead to errors being returned.
+    pub const MIN: usize = 1;
+    /// Using this seed length is recommended if performance is preferred over perceived randomness.
+    pub const PERFORMANCE: usize = 64;
+    /// Using this seed length is recommended if a balance between performance and perceived randomness is desired.
+    pub const BALANCE: usize = 128;
+    /// Using this seed length is recommended if perceived randomness is preferred over performance.
+    pub const RANDOM: usize = 256;
+    /// Using this seed length is recommended if only ASCII characters are used in the seed.
+    pub const FROM_ASCII_RECOMMENDED_MAX: usize = 64;
+    /// The maximum seed length it is recommend to initialize `Fortuna` with.
+    ///
+    /// Choosing a value higher than this has diminishing returns on the perceived randomness
+    /// while needlessly increasing the time it takes to initialize `Fortuna` and lowering performance of pool re-generations.
+    pub const RECOMMENDED_MAX: usize = 256;
+}
+
 /// `Fortuna` is a struct that contains a pool of pseudo-random bytes.
 /// The entropy pool will regenerate itself if it is empty.
 ///
@@ -24,8 +45,12 @@ impl Fortuna {
     /// The pool will regenerate itself if it is empty.
     ///
     /// Please supply a seed vector with at least one element.
-    /// The more the better.
+    /// In general: The more the better.
     /// The seed is the only real source of entropy.
+    ///
+    /// Recommended seed lengths are provided in the [`seed_lengths`] module.
+    ///
+    /// To increase the perceived randomness, ensure that as many byte values from 0x00 to 0xFF are used in your seed as possible.
     #[must_use]
     pub fn new<V: Into<Vec<u8>>>(seed: V) -> Self {
         Self {

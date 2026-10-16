@@ -135,7 +135,7 @@ impl EntropyPool {
         if self.seed.len() < 256 {
             self.seed.extend(next_seeds);
         } else {
-            if self.seeded_iteration % 128 == 0 {
+            if self.seeded_iteration < 512 && self.seeded_iteration % 128 == 0 {
                 self.seed.extend(next_seeds);
             }
         }
