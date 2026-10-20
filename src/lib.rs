@@ -174,6 +174,26 @@ pub mod helpers {
         let normalised = crate::helpers::ascii_seed_normaliser(no_entropy_seed);
         assert!(crate::helpers::has_recommended_entropy(normalised));
     }
+    #[test]
+    fn normaliser_increases_expected_range() {
+        let seed = "KD6avuOwlHhfSSOAWxCRk8BO1dTwPEDWQb8TkswSM5VbHMUKYCW9SmM9u1cdUkQ2"
+            .chars()
+            .collect::<Vec<char>>();
+        let unique_chars = seed
+            .iter()
+            .cloned()
+            .collect::<std::collections::HashSet<char>>();
+        let normalised = crate::helpers::ascii_seed_normaliser(seed);
+        let normalised_unique_chars = normalised
+            .iter()
+            .collect::<std::collections::HashSet<&u8>>();
+        assert!(unique_chars.len() < normalised_unique_chars.len());
+        assert!(
+            u8::MAX as usize >= normalised.len(),
+            "Length of normalised seed should be less than u8::MAX for performance, got {}",
+            normalised.len()
+        );
+    }
 }
 
 /// `Fortuna` is a struct that contains a pool of pseudo-random bytes.
