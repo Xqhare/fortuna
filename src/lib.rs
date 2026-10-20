@@ -11,20 +11,169 @@ pub mod seed_lengths {
     /// The minimum seed length.
     ///
     /// Choosing a value lower than this will lead to errors being returned.
+    ///
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     pub const MIN: usize = 1;
+    /// Any seed should be at least this long.
+    ///
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
+    pub const RECOMMENDED_MIN: usize = 32;
     /// Using this seed length is recommended if performance is preferred over perceived randomness.
+    ///
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     pub const PERFORMANCE: usize = 64;
     /// Using this seed length is recommended if a balance between performance and perceived randomness is desired.
+    ///
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     pub const BALANCE: usize = 128;
     /// Using this seed length is recommended if perceived randomness is preferred over performance.
+    ///
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     pub const RANDOM: usize = 256;
-    /// Using this seed length is recommended if only ASCII characters are used in the seed.
+    /// Using this seed length is recommended if the seed consists only or mostly of ASCII characters.
+    ///
+    /// Consider using [`helpers::ascii_seed_normaliser`] to normalise the seed to a larger range of bytes.
+    /// Also consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     pub const FROM_ASCII_RECOMMENDED_MAX: usize = 64;
     /// The maximum seed length it is recommend to initialize `Fortuna` with.
+    /// Consider using [`helpers::has_recommended_entropy`] to determine if the seed is suitable for `Fortuna`.
     ///
     /// Choosing a value higher than this has diminishing returns on the perceived randomness
     /// while needlessly increasing the time it takes to initialize `Fortuna` and lowering performance of pool re-generations.
     pub const RECOMMENDED_MAX: usize = 256;
+}
+
+/// A collection of helper functions
+pub mod helpers {
+    use std::collections::HashSet;
+
+    use crate::seed_lengths::{RECOMMENDED_MAX, RECOMMENDED_MIN};
+
+    /// `Fortuna` works best when the seed spans all byte values 0..255.
+    /// Seeds entered by the user (by keyboard) are most likely to be 32..126 (ascii printable characters)
+    ///
+    /// This function normalises the seed to cover a larger range of bytes.
+    ///
+    /// # Arguments
+    ///
+    /// * `seed` - A vector of characters.
+    ///
+    /// # Note
+    ///
+    /// The input vector should be at most `seed_lengths::FROM_ASCII_RECOMMENDED_MAX` in length.
+    ///
+    /// The seed returned by this function will contain non-printable characters, displaying it will
+    /// need special care.
+    ///
+    /// The returned seed will be of length: `seed.len() * 3 + 32`.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use fortuna::helpers;
+    /// use std::collections::HashSet;
+    ///
+    /// let seed: Vec<char> = "ababcadadcdcdfgjkljgfh".chars().collect();
+    /// assert!(!helpers::has_recommended_entropy(seed.clone().into_iter().map(|c| c as u8).collect::<Vec<u8>>()));
+    /// let normalised = helpers::ascii_seed_normaliser(seed.clone());
+    /// assert!(helpers::has_recommended_entropy(normalised.clone()));
+    ///
+    /// let seed_unique = HashSet::<u8>::from_iter(seed.iter().map(|c| *c as u8)).len();
+    /// let normalised_unique = HashSet::<u8>::from_iter(normalised).len();
+    /// assert!(seed_unique < normalised_unique);
+    /// ```
+    pub fn ascii_seed_normaliser<V: Into<Vec<char>>>(seed: V) -> Vec<u8> {
+        let seed = seed
+            .into()
+            .into_iter()
+            .map(|c| c as u8)
+            .collect::<Vec<u8>>();
+        let missing_range: Vec<u8> = (128..160).collect();
+        let mut out = Vec::with_capacity(seed.len().saturating_mul(3).saturating_add(32));
+        for v in seed.iter() {
+            out.push(*v % 32);
+            out.push(*&v.saturating_add(128));
+            out.push(*v);
+        }
+        for v in missing_range.iter() {
+            out.insert(out[*v as usize % out.len()] as usize % out.len(), *v);
+        }
+        out
+    }
+    /// Convenience function to check if a seed is suitable for `Fortuna`.
+    ///
+    /// # Arguments
+    ///
+    /// * `seed` - A vector of bytes.
+    ///
+    /// # Returns
+    ///
+    /// * `true` if the seed is suitable for `Fortuna`.
+    /// * `false` otherwise.
+    ///
+    /// # Note
+    ///
+    /// This function uses the recommended seed lengths found in the [`seed_lengths`] module as
+    /// well as the amount of unique byte values present in the seed.
+    ///
+    /// Of course you can still use a seed that fails these tests, but it does limit the available
+    /// entropy severely.
+    ///
+    /// # Examples
+    /// ```rust
+    /// use fortuna::helpers;
+    ///
+    /// let no_entropy_seed: Vec<u8> = "ababcadadcdcdfgjkljgfh".chars().map(|c| c as u8).collect();
+    /// assert!(!helpers::has_recommended_entropy(no_entropy_seed));
+    /// let low_entropy_seed: Vec<u8> = "In academic writing, the average sentence length is typically between 15-20 words.".chars().map(|c| c as u8).collect();
+    /// assert!(helpers::has_recommended_entropy(low_entropy_seed));
+    /// let high_entropy_seed: Vec<u8> = "KD6avuOwlHhfSSOAWxCRk8BO1dTwPEDWQb8TkswSM5VbHMUKYCW9SmM9u1cdUkQ2".chars().map(|c| c as u8).collect();
+    /// assert!(helpers::has_recommended_entropy(high_entropy_seed));
+    /// ```
+    pub fn has_recommended_entropy<V: Into<Vec<u8>>>(seed: V) -> bool {
+        let seed = seed.into();
+        let seed_len = seed.len();
+        let set_len = HashSet::<u8>::from_iter(seed).len();
+        if seed_len >= RECOMMENDED_MIN
+            && seed_len <= RECOMMENDED_MAX
+            && set_len >= RECOMMENDED_MIN.saturating_div(2)
+            && set_len >= seed_len.saturating_div(3)
+        {
+            true
+        } else {
+            false
+        }
+    }
+
+    #[test]
+    fn entropy() {
+        let low_entropy_seed: Vec<u8> =
+            "In academic writing, the average sentence length is typically between 15-20 words."
+                .chars()
+                .map(|c| c as u8)
+                .collect();
+        assert!(crate::helpers::has_recommended_entropy(low_entropy_seed));
+        let high_entropy_seed: Vec<u8> =
+            "KD6avuOwlHhfSSOAWxCRk8BO1dTwPEDWQb8TkswSM5VbHMUKYCW9SmM9u1cdUkQ2"
+                .chars()
+                .map(|c| c as u8)
+                .collect();
+        assert!(crate::helpers::has_recommended_entropy(high_entropy_seed));
+        let no_entropy_seed: Vec<u8> = "ababababacdadjangabwgw".chars().map(|c| c as u8).collect();
+        assert!(!crate::helpers::has_recommended_entropy(no_entropy_seed));
+    }
+    #[test]
+    fn normaliser() {
+        let no_entropy_seed: Vec<char> = "ababababacdadjangabwgw".chars().collect();
+        assert!(!crate::helpers::has_recommended_entropy(
+            no_entropy_seed
+                .iter()
+                .map(|c| *c as u8)
+                .collect::<Vec<u8>>()
+        ));
+        let normalised = crate::helpers::ascii_seed_normaliser(no_entropy_seed);
+        assert!(crate::helpers::has_recommended_entropy(normalised));
+    }
 }
 
 /// `Fortuna` is a struct that contains a pool of pseudo-random bytes.
