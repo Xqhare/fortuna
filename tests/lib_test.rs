@@ -1,4 +1,4 @@
-use athena::rng_api::RngApi;
+use athena::traits::RngApi;
 use std::collections::HashMap;
 
 use fortuna::Fortuna;

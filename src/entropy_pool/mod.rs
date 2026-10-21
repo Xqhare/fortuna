@@ -1,6 +1,6 @@
 use athena::{
     Array, Object, XffValue,
-    rng_api::{RngError, RngResult},
+    traits::{RngError, RngResult},
     xff,
 };
 

@@ -3,7 +3,7 @@ mod entropy_pool;
 
 use crate::entropy_pool::EntropyPool;
 use athena::XffValue;
-pub use athena::rng_api::{RngApi, RngError, RngResult};
+pub use athena::traits::{RngApi, RngError, RngResult};
 use std::ops::{Add, Sub};
 
 /// Recommended Seed lengths for all use cases
