@@ -16,6 +16,12 @@ If you are looking for a true CSPRNG check out my project [Tyche](https://github
 ## Naming
 Fortuna is named after the ancient roman goddess of fortune. Her Greek equivalent is Tyche and lends her name to my own CSPRNG project.
 
+## Limitations
+
+`Fortuna` can at most generate the same value twice in a row. The maximum distance between the generation of two equal values is also known at 512 iterations / generated numbers / calls.
+
+`Fortuna` guarantees to cover most of the range 0..=255 in 256 iterations. The lower theoretical limit is 128 unique values, all appearing twice, and the upper limit is 256 unique values.
+
 ## Usage
 First add `fortuna` to your `Cargo.toml`:
 
