@@ -412,6 +412,19 @@ impl RngApi for Fortuna {
         Ok(!rng.is_multiple_of(2))
     }
 
+    fn random_weighted_bool(
+        &mut self,
+        true_weight: u8,
+        false_weight: u8,
+    ) -> Result<bool, RngError> {
+        let true_weight = true_weight as usize;
+        let false_weight = false_weight as usize;
+        let mut tmp_ary = Vec::with_capacity(true_weight + false_weight);
+        tmp_ary.extend_from_slice(&[true].repeat(true_weight));
+        tmp_ary.extend_from_slice(&[false].repeat(false_weight));
+        Ok(tmp_ary[self.random_index(tmp_ary.len())?])
+    }
+
     fn random_from_range_inclusive(&mut self, min: usize, max: usize) -> RngResult<usize> {
         if min < max {
             let range_size = (max).saturating_sub(min).saturating_add(1);
